@@ -906,6 +906,79 @@ body{font-weight:400}
   .bookCta p{font-size:18px!important;line-height:1.9!important}
 }
 
+
+/* ===== V6 KoPub Batang Bold balance ===== */
+html,body,button,a,input,textarea{
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!important;
+}
+body{font-weight:400}
+
+/* 테스트에서 즉시 읽혀야 하는 짧은 문구 */
+.eyebrow,.home-title,.home-sub,.home-meta,
+.warning-card,.threshold-btn,.briefing-note,
+.count,.question h2,.answer,
+.typeLabel,.typeTitle,.quote,.name,.book,.sim,
+.section h3,.barRow,.rank strong,
+.actions .shareBtn,.actions .ghost,
+.share-note,.landing-return-btn{
+  font-weight:700!important;
+}
+
+/* 긴 설명/분석은 Regular */
+.briefing-copy,
+.question .sub,.sub,
+.analysisText p,
+.bookCta p{
+  font-weight:400!important;
+}
+
+/* 결과의 짧은 카드 문구는 Bold */
+.smallCard{
+  font-weight:700!important;
+}
+
+@media (min-width:821px){
+  .home-meta,.count,.share-note{font-size:15px!important}
+  .book{font-size:17px!important}
+  .barRow{font-size:17px!important}
+  .answer{font-size:19px!important}
+  .smallCard{font-size:18px!important}
+}
+
+
+/* ===== V7 ALL BOLD preview =====
+   모든 텍스트를 KoPub 바탕 Bold(700)로 강제 적용 */
+html,body,
+h1,h2,h3,h4,h5,h6,
+p,span,small,strong,b,em,i,
+div,a,button,label,li,dt,dd,
+input,textarea,select,option,
+blockquote,cite,figcaption {
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
+  font-weight:700 !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
+  font-weight:700 !important;
+}
+
+body{
+  font-weight:700 !important;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* 너무 작아 보이는 라벨류는 한 번 더 살짝 상향 */
+@media (min-width:821px){
+  .navlinks,.navcta,.eyebrow,.kicker,.scene-no,.char-no,.recent-meta,.shop-name,
+  .home-meta,.count,.share-note,.chip,.sortBtn,.serial,.when,.nick,.score,.like{
+    font-size:max(1em, 15px) !important;
+  }
+}
+
 </style>
 </head>
 <body>

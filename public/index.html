@@ -978,6 +978,86 @@ body{font-weight:400}
 /* 아주 작은 영문 라벨은 400 대신 Bold를 쓰되 크기는 과장하지 않음 */
 .scene-no,.char-no,.panel .tag,.eyebrow{font-weight:700}
 
+
+/* ===== V6 KoPub Batang Bold balance =====
+   짧은 카피/라벨/버튼은 700, 길게 읽는 설명문은 400 유지 */
+html,body,button,a,input,textarea{
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!important;
+}
+body{font-weight:400}
+
+/* 짧고 중요한 텍스트 */
+.logo,.navlinks,.navcta,
+.eyebrow,.kicker,
+.hero-quote,.hero-actions .btn,
+.bridge-title,.bridge-btn,
+.manifesto,.rule b,
+.scene-no,.scenes-showcase .scene h3,
+.char-no,.char h3,.char .type,
+.mid-buy strong,.mid-buy .btn,
+.shop-name,.price,
+.recent-meta,.recent-type,.recent-actions a,
+.writer-blog-btn{
+  font-weight:700!important;
+}
+
+/* 장문 설명은 Regular 유지 */
+.bridge-card .meta,.statrow,.feeditem span,
+.world-intro>p,.rule p,
+.scenes-showcase .scene p,.char p,
+.preview-text,.recent-note,.recent-desc,.recent-comment,.recent-nick,
+.shop-format,.shop-note,
+.writer-notes p,.writer-notes-meta,.footer{
+  font-weight:400!important;
+}
+
+@media (min-width:821px){
+  /* 작은 텍스트가 Bold에서도 뭉개지지 않게 최소 크기 확보 */
+  .navlinks,.navcta{font-size:16px!important}
+  .eyebrow{font-size:14px!important}
+  .scene-no,.char-no{font-size:13px!important}
+  .rule b{font-size:17px!important}
+  .scene .type,.char .type{font-size:16px!important}
+  .recent-meta{font-size:13px!important}
+  .recent-actions a{font-size:14px!important}
+  .shop-name{font-size:17px!important}
+  .price{font-size:16px!important}
+}
+
+
+/* ===== V7 ALL BOLD preview =====
+   모든 텍스트를 KoPub 바탕 Bold(700)로 강제 적용 */
+html,body,
+h1,h2,h3,h4,h5,h6,
+p,span,small,strong,b,em,i,
+div,a,button,label,li,dt,dd,
+input,textarea,select,option,
+blockquote,cite,figcaption {
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
+  font-weight:700 !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
+  font-weight:700 !important;
+}
+
+body{
+  font-weight:700 !important;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* 너무 작아 보이는 라벨류는 한 번 더 살짝 상향 */
+@media (min-width:821px){
+  .navlinks,.navcta,.eyebrow,.kicker,.scene-no,.char-no,.recent-meta,.shop-name,
+  .home-meta,.count,.share-note,.chip,.sortBtn,.serial,.when,.nick,.score,.like{
+    font-size:max(1em, 15px) !important;
+  }
+}
+
 </style>
 <style id="v13-mokgan-fixed">
 /* ===== V13 목간 버튼 수정본 =====

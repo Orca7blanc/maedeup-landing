@@ -68,6 +68,77 @@ body{font-weight:400}
   .foot{font-size:14px!important;color:#857b70!important}
 }
 
+
+/* ===== V6 KoPub Batang Bold balance ===== */
+html,body,button,a,input,textarea{
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!important;
+}
+body{font-weight:400}
+
+/* 짧은 UI / 결과 핵심 정보 */
+.logo,.navcta,.eyebrow,
+.hero h1,.hero p,.countline,.countline strong,
+.mokBtn,.chip,.sortBtn,
+.serial,.when,.char,.type,.nick,.score,.like,
+.board-return a,
+.modal h2,.resultPreview b,.resultPreview strong,
+.field label,.counter,.modalActions button{
+  font-weight:700!important;
+}
+
+/* 설명·사용자 한마디·동의문은 Regular */
+.boardStatus,.comment,.gate,
+.resultPreview span,.consent,
+.field input,.field textarea,
+.foot{
+  font-weight:400!important;
+}
+
+@media (min-width:821px){
+  .navcta{font-size:16px!important}
+  .hero p{font-size:20px!important}
+  .countline{font-size:16px!important}
+  .chip,.sortBtn{font-size:15px!important}
+  .serial,.when{font-size:14px!important}
+  .char{font-size:17px!important}
+  .nick{font-size:15px!important}
+  .score,.like{font-size:14px!important}
+}
+
+
+/* ===== V7 ALL BOLD preview =====
+   모든 텍스트를 KoPub 바탕 Bold(700)로 강제 적용 */
+html,body,
+h1,h2,h3,h4,h5,h6,
+p,span,small,strong,b,em,i,
+div,a,button,label,li,dt,dd,
+input,textarea,select,option,
+blockquote,cite,figcaption {
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
+  font-weight:700 !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
+  font-weight:700 !important;
+}
+
+body{
+  font-weight:700 !important;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* 너무 작아 보이는 라벨류는 한 번 더 살짝 상향 */
+@media (min-width:821px){
+  .navlinks,.navcta,.eyebrow,.kicker,.scene-no,.char-no,.recent-meta,.shop-name,
+  .home-meta,.count,.share-note,.chip,.sortBtn,.serial,.when,.nick,.score,.like{
+    font-size:max(1em, 15px) !important;
+  }
+}
+
 </style>
 </head>
 <body>
