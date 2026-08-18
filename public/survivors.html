@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080604">
 <title>문턱을 넘은 사람들 | 매듭</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-kopubworld@1.0.3/batang.min.css">
 <style>
 :root{--bg:#080604;--paper:#eee6d7;--muted:#9d9180;--gold:#b99a61;--line:rgba(198,164,103,.16);--red:#611714;--card:#0e0a08;--max:980px}
 *{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{margin:0;background:radial-gradient(60% 28% at 12% 8%,rgba(82,25,18,.16),transparent 75%),linear-gradient(180deg,#080604,#0b0705 52%,#070605);color:var(--paper);font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif;min-height:100vh;overflow-x:hidden}button,input,textarea{font:inherit}a{color:inherit;text-decoration:none}.wrap{width:min(calc(100% - 32px),var(--max));margin:auto}
@@ -17,13 +18,43 @@
 .modalBackdrop{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.76);display:none;align-items:center;justify-content:center;padding:20px}.modalBackdrop.show{display:flex}.modal{width:min(100%,500px);max-height:min(88vh,720px);overflow:auto;background:linear-gradient(180deg,#120d0a,#0a0807);border:1px solid rgba(198,164,103,.22);border-radius:22px;padding:24px 22px;box-shadow:0 30px 90px rgba(0,0,0,.56)}.modalHead{display:flex;justify-content:space-between;gap:14px;align-items:start}.modal h2{font-size:28px;margin:5px 0 8px}.close{background:transparent;color:#82776b;border:0;font-size:25px;cursor:pointer}.resultPreview{margin:19px 0 22px;padding:18px;border:1px solid rgba(198,164,103,.12);border-radius:15px;background:rgba(80,30,20,.05)}.resultPreview b{display:block;color:#d8bd8d;font-size:13px}.resultPreview strong{display:block;margin-top:6px;font-size:24px}.resultPreview span{color:#81766b;font-size:11px}.field{margin:17px 0}.field label{display:block;font-size:11px;color:#9f927f;margin-bottom:8px}.field input,.field textarea{width:100%;border:1px solid rgba(198,164,103,.16);background:#080605;color:#e5dccd;border-radius:11px;padding:13px 14px;outline:none}.field textarea{min-height:105px;resize:vertical;line-height:1.7}.field input:focus,.field textarea:focus{border-color:rgba(198,164,103,.43)}.counter{text-align:right;color:#655e56;font-size:9px;margin-top:5px}.consent{display:flex;align-items:start;gap:9px;color:#80766a;font-size:10px;line-height:1.6;margin:16px 0 20px}.consent input{margin-top:2px}.modalActions{display:flex;gap:8px}.modalActions button{flex:1}.gate{text-align:center;padding:15px 0 4px;color:#948879;line-height:1.8}.gate .quietBtn{margin-top:18px}
 @media(min-width:760px){.cards{grid-template-columns:1fr 1fr}.post{min-height:290px}.post:nth-child(5n+1){grid-column:span 2}.post:nth-child(5n+1) .type{font-size:30px}}
 @media(max-width:640px){.navin{height:60px}.logo{font-size:22px}.navcta{font-size:10px}.hero{padding:72px 0 38px}.toolbar{display:block}.sorts{margin-top:7px}.post{padding:19px}.type{font-size:22px}.footin{display:block}.footin span{display:block;margin-top:7px}.modal{padding:20px 18px;width:min(100%,500px);border-radius:20px}.modal h2{font-size:26px;line-height:1.24;letter-spacing:-.04em;word-break:keep-all}.gate{font-size:14px;line-height:1.95;padding:16px 2px 6px}.modalActions{display:block}.modalActions button{width:100%;margin-top:8px}.heroActions .mokBtn{width:190px;height:58px;font-size:17px}.resultGateBtn .mokBtn{width:260px;height:58px;font-size:17px}}
+
+/* ===== V3 desktop typography + clear return CTA ===== */
+@media (min-width: 1000px){
+  body{font-size:17px;font-weight:400}
+  .logo{font-size:28px!important}
+  .navcta{font-size:14px!important}
+  .eyebrow{font-size:13px!important}
+  .hero h1{font-size:64px!important}
+  .hero p{font-size:18px!important;line-height:2}
+  .countline{font-size:14px!important}
+  .mokBtn.primary,.mokBtn.secondary{font-size:18px!important}
+  .chip,.sortBtn{font-size:13px!important;padding:9px 14px!important}
+  .boardStatus{font-size:13px!important}
+  .serial,.when{font-size:12px!important}
+  .char{font-size:15px!important}
+  .type{font-size:30px!important}
+  .nick{font-size:13px!important}
+  .comment{font-size:17px!important;line-height:1.9}
+  .score,.like{font-size:12px!important}
+  .foot{font-size:13px!important}
+}
+.board-return{display:flex;justify-content:center;padding:58px 0 8px}
+.board-return a{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:min(100%,360px);height:66px;padding:0 42px 4px;
+  background:transparent url("./mokgan_primary_v13.png") center/100% 100% no-repeat;
+  color:#efe2cd;font-size:18px;cursor:pointer;transition:.18s ease;
+}
+.board-return a:hover{transform:translateY(-1px);filter:brightness(1.06)}
+
 </style>
 </head>
 <body>
 <header class="nav"><div class="wrap navin"><a class="logo" href="./index.html">매듭</a><a class="navcta" href="./test.html">K오컬트 생존유형 테스트</a></div></header>
 <main>
 <section class="hero"><div class="wrap"><div class="eyebrow">SURVIVORS BEYOND THE THRESHOLD</div><h1>문턱을 넘은 사람들</h1><p>《매듭》의 세계에서<br>당신은 어떻게 살아남았습니까?</p><div class="countline" id="countline">첫 생존 기록을 기다리고 있습니다.</div><div class="heroActions"><button class="primaryBtn mokBtn primary" onclick="openShare()">내 결과 남기기</button><a class="quietBtn mokBtn secondary" href="./test.html">테스트 하러 가기</a></div></div></section>
-<section class="board"><div class="wrap"><div class="toolbar"><div class="filters" id="filters"></div><div class="sorts"><button class="sortBtn active" data-sort="latest">최신순</button><button class="sortBtn" data-sort="popular">인기순</button></div></div><div class="boardStatus">현재 버전은 화면·동선 확인용 프로토타입입니다. 실제 공개 DB를 연결하기 전까지 등록한 글은 이 브라우저에만 저장됩니다.</div><div class="cards" id="cards"></div></div></section>
+<section class="board"><div class="wrap"><div class="toolbar"><div class="filters" id="filters"></div><div class="sorts"><button class="sortBtn active" data-sort="latest">최신순</button><button class="sortBtn" data-sort="popular">인기순</button></div></div><div class="boardStatus">현재 버전은 화면·동선 확인용 프로토타입입니다. 실제 공개 DB를 연결하기 전까지 등록한 글은 이 브라우저에만 저장됩니다.</div><div class="cards" id="cards"></div><div class="board-return"><a href="./index.html">《매듭》 랜딩페이지로 돌아가기</a></div></div></section>
 </main>
 <footer class="foot"><div class="wrap footin"><span>《매듭》 · 이자운</span><span><a href="https://m.blog.naver.com/orca7blanc" target="_blank" rel="noopener noreferrer">작가의 기록</a> · <a href="./index.html">랜딩페이지로 돌아가기</a></span></div></footer>
 <div class="modalBackdrop" id="modalBackdrop" onclick="backdropClose(event)"><div class="modal" id="modal"><div id="modalContent"></div></div></div>

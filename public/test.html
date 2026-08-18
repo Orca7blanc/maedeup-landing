@@ -830,6 +830,54 @@ body{font-weight:400}
 .share-note{font-size:11px;color:#766d62;line-height:1.65;text-align:center;margin-top:4px}
 @media(min-width:760px){.screen{width:min(100%,720px)}}
 
+
+/* ===== V3 desktop readability + interaction ===== */
+.threshold-btn{cursor:pointer!important}
+.threshold-btn:hover{filter:brightness(1.04)}
+@media (min-width: 1000px){
+  .screen{width:min(100%,880px)!important;padding-left:52px!important;padding-right:52px!important}
+  .home-inner{max-width:650px!important}
+  .home-v4 .eyebrow,.eyebrow{font-size:13px!important}
+  .home-title{font-size:70px!important}
+  .home-sub{font-size:18px!important;line-height:1.85}
+  .home-meta,.meta{font-size:15px!important}
+  .warning-card{font-size:17px!important;line-height:1.9}
+  .threshold-btn{font-size:19px!important;padding:19px 28px!important}
+  .briefing-card{max-width:680px!important}
+  .briefing-copy{font-size:17px!important;line-height:2}
+  .question h2{font-size:32px!important;line-height:1.42}
+  .question .sub,.sub{font-size:17px!important;line-height:1.95!important}
+  .count{font-size:14px!important}
+  .answer{font-size:17px!important;padding:19px 18px!important;line-height:1.7}
+  .heroResult{padding-top:46px!important}
+  .typeLabel{font-size:14px!important}
+  .typeTitle{font-size:46px!important}
+  .quote{font-size:19px!important;line-height:1.85}
+  .name{font-size:35px!important}
+  .book{font-size:15px!important}
+  .sim{font-size:17px!important}.sim strong{font-size:28px!important}
+  .section h3{font-size:21px!important}
+  .barRow{font-size:15px!important;grid-template-columns:92px 1fr 48px!important}
+  .smallCard{font-size:16px!important;line-height:1.75;padding:18px 20px!important}
+  .rank strong{font-size:20px!important}
+  .analysisText p{font-size:17px!important;line-height:2!important}
+  .actions .shareBtn,.actions .ghost{font-size:17px!important;padding:17px 20px!important}
+  .share-note{font-size:13px!important}
+  .bookCta h3{font-size:29px!important}
+  .bookCta p{font-size:17px!important;line-height:1.85}
+}
+.landing-return{text-align:center;padding-bottom:12px}
+.landing-return .eyebrow{margin-bottom:14px}
+.landing-return-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:min(100%,380px);min-height:66px;padding:0 44px 4px;border:0;
+  cursor:pointer;color:#efe2cd;
+  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif;
+  font-size:18px;background:transparent url("./mokgan_primary_v13.png") center/100% 100% no-repeat;
+  transition:.18s ease;
+}
+.landing-return-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+
 </style>
 </head>
 <body>
@@ -956,6 +1004,10 @@ function showResult(){
    </section>
    <section class="section actions"><button class="shareBtn" onclick="openBoardShare()">결과 공유하기</button><button class="ghost" onclick="shareResult()">결과 이미지 공유</button><button class="ghost" onclick="downloadCard()">결과 이미지 저장</button><button class="ghost" onclick="shareTest()">친구에게 테스트 보내기</button><button class="ghost" onclick="start()">다시 테스트하기</button><div class="share-note">“결과 공유하기”는 게시판 등록 화면으로 이동합니다. 이미지 공유·저장 기능은 그대로 사용할 수 있습니다.</div></section>
    <section class="section bookCta"><div class="eyebrow">그런데 ${esc(top.name)}${topicParticle(top.name)} 누구일까요?</div><h3>소설 《매듭 문지방을 넘어온 것들》</h3><p>귀신과 요괴가 현실의 틈으로 스며드는 한국. 그 세계에서 살아가는 사람들의 이야기.</p><button class="ghost" onclick="goToWorld()">${esc(p.worldCta || "《매듭》 세계 보기")}</button></section>
+    <section class="section landing-return">
+      <div class="eyebrow">BACK TO MAEDEUP</div>
+      <button class="landing-return-btn" onclick="location.href='./index.html'">《매듭》 랜딩페이지로 돌아가기</button>
+    </section>
  </main>`;
  window.__result={ranks,top,p,axes};
  try{
@@ -973,13 +1025,28 @@ function shareCopy(){
   const {top,p}=window.__result;
   return `나는 K-오컬트 생존유형 ‘${p.title}’ — ${top.name}형 ${top.sim}% 나옴. 너는?`;
 }
-function shareTest(){
-  const text='K-오컬트 생존유형 테스트. 금기를 마주친다면 당신은 어떻게 살아남을까?';
-  const url=cleanTestUrl();
-  if(navigator.share){navigator.share({title:'K-오컬트 생존유형 테스트',text,url:url||undefined}).catch(()=>{})}
-  else if(navigator.clipboard){navigator.clipboard.writeText(text+(url?' '+url:''));toast('테스트 공유 문구를 복사했습니다.')}
-  else toast('브라우저의 공유 기능을 이용해주세요.');
-}
+function isMobileShareDevice(){
+   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
+ }
+ async function shareTest(){
+   const text='K-오컬트 생존유형 테스트. 금기를 마주친다면 당신은 어떻게 살아남을까?';
+   const url=cleanTestUrl();
+   const payload=text+(url?' '+url:'');
+   if(isMobileShareDevice() && navigator.share){
+     try{
+       await navigator.share({title:'K-오컬트 생존유형 테스트',text,url:url||undefined});
+       return;
+     }catch(e){ if(e&&e.name==='AbortError') return; }
+   }
+   try{
+     if(navigator.clipboard){
+       await navigator.clipboard.writeText(payload);
+       toast('테스트 링크를 복사했습니다. 카카오톡 채팅창에 붙여넣어 보내세요.');
+       return;
+     }
+   }catch(e){}
+   toast('테스트 주소를 복사해 친구에게 보내주세요.');
+ }
 function toast(t){const n=document.createElement('div');n.className='toast';n.textContent=t;document.body.appendChild(n);setTimeout(()=>n.remove(),1900)}
 function roundedPath(ctx,x,y,w,h,r){
   const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();
@@ -1027,17 +1094,33 @@ async function downloadCard(){
   const {top}=window.__result;const blob=await buildShareBlob();if(!blob)return toast('이미지를 만들지 못했습니다.');downloadBlob(blob,`K오컬트_생존유형_${top.name}.png`);
 }
 async function shareResult(){
-  const {top}=window.__result;const blob=await buildShareBlob();if(!blob)return toast('공유 이미지를 만들지 못했습니다.');
-  const file=new File([blob],`K오컬트_생존유형_${top.name}.png`,{type:'image/png'});const text=shareCopy(),url=cleanTestUrl();
-  try{
-    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-      await navigator.share({title:'K-오컬트 생존유형 테스트',text,url:url||undefined,files:[file]});return;
-    }
-  }catch(e){if(e&&e.name==='AbortError')return;}
-  downloadBlob(blob,file.name);
-  try{if(navigator.clipboard)await navigator.clipboard.writeText(text+(url?' '+url:''))}catch(e){}
-  toast('공유 이미지를 저장했습니다. 공유 문구도 복사했습니다.');
-}
+   const {top}=window.__result;
+   const blob=await buildShareBlob();
+   if(!blob)return toast('공유 이미지를 만들지 못했습니다.');
+   const file=new File([blob],`K오컬트_생존유형_${top.name}.png`,{type:'image/png'});
+   const text=shareCopy(),url=cleanTestUrl();
+
+   if(isMobileShareDevice()){
+     try{
+       if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+         await navigator.share({title:'K-오컬트 생존유형 테스트',text,url:url||undefined,files:[file]});
+         return;
+       }
+     }catch(e){ if(e&&e.name==='AbortError') return; }
+   }
+
+   try{
+     if(navigator.clipboard && window.ClipboardItem){
+       await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+       toast('결과 이미지를 복사했습니다. 카카오톡 채팅창에서 Ctrl+V로 붙여넣으세요.');
+       return;
+     }
+   }catch(e){}
+
+   downloadBlob(blob,file.name);
+   try{if(navigator.clipboard)await navigator.clipboard.writeText(text+(url?' '+url:''))}catch(e){}
+   toast('결과 이미지를 저장했습니다. 카카오톡에서 저장된 PNG를 첨부해 주세요.');
+ }
 function openBoardShare(){
   if(!window.__result)return;
   const {top,p}=window.__result;
