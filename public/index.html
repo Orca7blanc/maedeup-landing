@@ -940,6 +940,44 @@ html,body,button{font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!imp
   }
 }
 
+
+/* ===== V5 readability + desktop carousel ===== */
+@media (min-width:821px){
+  #scenePager .pager-dot:nth-child(n+3){display:none!important}
+}
+
+/* KoPubWorld Batang Medium(400)을 본문 기본으로 유지하고,
+   작은 글씨는 크기/대비를 올려 가늘어 보이는 현상을 줄인다. */
+body{font-weight:400}
+@media (min-width:821px){
+  body{font-size:18px!important}
+  .logo{font-size:28px!important}
+  .navlinks,.navcta{font-size:16px!important}
+  .eyebrow{font-size:14px!important}
+  p{font-size:18px}
+  .hero-quote{font-size:20px!important;line-height:1.9}
+  .hero-copy .kicker{font-size:22px!important}
+  .btn{font-size:17px}
+  .bridge-card .meta,.statrow{font-size:16px!important}
+  .feeditem span,.rule p{font-size:15px!important;color:#a99e90!important}
+  .scene-no,.char-no{font-size:13px!important}
+  .scenes-showcase .scene p,.char p{font-size:16px!important;line-height:1.78;color:#c0b5a6!important}
+  .panel .tag,.price{font-size:15px!important}
+  .preview-text{font-size:17px!important;color:#c3b6a5!important}
+  .recent-note{font-size:14px!important;color:#968c80!important}
+  .recent-meta{font-size:12px!important;color:#91877b!important}
+  .recent-type{font-size:24px!important}
+  .recent-desc,.recent-card .recent-comment{font-size:15px!important;color:#bdb09e!important}
+  .recent-card .recent-nick{font-size:13px!important;color:#978b7d!important}
+  .shop-name{font-size:16px!important}
+  .shop-format,.shop-note{font-size:12px!important;color:#958879!important}
+  .writer-notes p{font-size:18px!important;color:#b7aa9a!important}
+  .writer-notes-meta{font-size:13px!important;color:#8b8176!important}
+  .footer{font-size:14px!important;color:#8c8175!important}
+}
+/* 아주 작은 영문 라벨은 400 대신 Bold를 쓰되 크기는 과장하지 않음 */
+.scene-no,.char-no,.panel .tag,.eyebrow{font-weight:700}
+
 </style>
 <style id="v13-mokgan-fixed">
 /* ===== V13 목간 버튼 수정본 =====
@@ -1272,9 +1310,8 @@ function setupPager(railId,pagerId,itemSelector){
 
   function desktopProgressIndex(){
     const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
-    if(max<2||items.length<=1) return 0;
-    const progress=Math.max(0,Math.min(1,rail.scrollLeft/max));
-    return Math.round(progress*(items.length-1));
+    if(max<2) return 0;
+    return rail.scrollLeft >= max/2 ? 1 : 0;
   }
 
   function centeredItemIndex(){
@@ -1297,12 +1334,12 @@ function setupPager(railId,pagerId,itemSelector){
     const next=Math.max(0,Math.min(items.length-1,current+dir));
 
     if(isDesktopSceneMode()){
-      /* PC: 4개의 점을 레일의 시작~끝에 균등하게 대응시켜
-         1번도 처음부터 활성화되고 4번도 끝에서 활성화된다. */
+      /* PC는 카드 3장이 한 화면에 보이므로 2페이지 캐러셀로 동작:
+         1·2·3 → 2·3·4. 화살표 한 번이면 다음 화면으로 이동한다. */
       const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
-      const target=items.length<=1?0:(next/(items.length-1))*max;
-      setCurrent(next,false);
-      rail.scrollTo({left:target,behavior:'smooth'});
+      const page=Math.max(0,Math.min(1,current+dir));
+      setCurrent(page,false);
+      rail.scrollTo({left:page===0?0:max,behavior:'smooth'});
       return;
     }
 
