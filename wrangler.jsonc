@@ -1,8 +1,9 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "maedeup-landing",
   "main": "src/index.js",
   "compatibility_date": "2026-08-18",
+
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
@@ -10,7 +11,16 @@
       "/api/*"
     ]
   },
+
   "observability": {
     "enabled": true
-  }
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "maedeup-survivors",
+      "database_id": "5181714d-2c44-4b43-860f-1388eea4023c"
+    }
+  ]
 }
