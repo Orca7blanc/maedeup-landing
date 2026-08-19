@@ -686,9 +686,25 @@ function toast(message){
 }
 function cleanTestUrl(){if(location.protocol==='http:'||location.protocol==='https:')return location.origin+location.pathname;return ''}
 function shareCopy(){const {top,p}=window.__result;return `나는 K-오컬트 생존유형 ‘${p.title}’ — ${top.name}형 ${top.sim}% 나옴. 너는?`}
-function shareTest(){
+async function shareTest(){
   const testUrl='https://maedeup-landing.orca7blanc.workers.dev/test';
   const imageUrl='https://maedeup-landing.orca7blanc.workers.dev/test-share-og-v7.png';
+  const shareText='금기를 마주친다면, 당신은 살아남을 수 있을까? · 14개의 선택 · 약 3분 · 10가지 유형';
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&innerWidth<900);
+
+  // 모바일/인앱 브라우저에서는 카카오 커스텀 스킴 대신 OS 공유창을 사용한다.
+  // 카카오톡을 고르면 testUrl의 OG 카드가 함께 전달된다.
+  if(isMobile&&navigator.share){
+    try{
+      await navigator.share({title:'K-오컬트 생존유형 테스트',text:shareText,url:testUrl});
+      return;
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+      console.warn('native share failed',e);
+    }
+  }
+
+  // PC에서는 기존 카카오 공유 피커를 유지한다.
   try{
     if(!window.Kakao) throw new Error('카카오 SDK를 불러오지 못했습니다.');
     if(!Kakao.isInitialized()) Kakao.init('b8d4faffb5612f01e36bc81892d32db5');
@@ -696,7 +712,7 @@ function shareTest(){
       objectType:'feed',
       content:{
         title:'K-오컬트 생존유형 테스트',
-        description:'금기를 마주친다면, 당신은 살아남을 수 있을까? · 14개의 선택 · 약 3분 · 10가지 유형',
+        description:shareText,
         imageUrl,
         link:{mobileWebUrl:testUrl,webUrl:testUrl}
       },
@@ -707,7 +723,15 @@ function shareTest(){
     });
   }catch(e){
     console.error(e);
-    toast('카카오톡 공유를 열지 못했습니다. 잠시 후 다시 시도해주세요.');
+    if(navigator.share){
+      try{await navigator.share({title:'K-오컬트 생존유형 테스트',text:shareText,url:testUrl});return}catch(err){if(err&&err.name==='AbortError')return}
+    }
+    try{
+      await navigator.clipboard.writeText(testUrl);
+      toast('테스트 링크를 복사했습니다. 채팅방에 붙여넣기하세요.');
+    }catch(err){
+      toast('공유를 열지 못했습니다. 브라우저 메뉴의 공유 기능을 이용해주세요.');
+    }
   }
 }
 function roundedPath(ctx,x,y,w,h,r){
@@ -808,7 +832,7 @@ async function prepareShareAssets(){
   });
   return shareBlobPromise;
 }
-function downloadCard(){
+async function downloadCard(){
   const {top}=window.__result||{};
   if(!top)return;
   if(!sharePreparedBlob||!sharePreparedUrl){
@@ -817,6 +841,26 @@ function downloadCard(){
     return;
   }
   const filename=`K오컬트_생존유형_${top.name}.png`;
+
+  // Chrome/Edge 계열: 실제 '저장' 파일 선택기를 열고 Blob을 직접 쓴다.
+  if(typeof window.showSaveFilePicker==='function'){
+    try{
+      const handle=await window.showSaveFilePicker({
+        suggestedName:filename,
+        types:[{description:'PNG 이미지',accept:{'image/png':['.png']}}]
+      });
+      const writable=await handle.createWritable();
+      await writable.write(sharePreparedBlob);
+      await writable.close();
+      toast('결과 이미지를 저장했습니다.');
+      return;
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+      console.warn('showSaveFilePicker failed',e);
+    }
+  }
+
+  // 일반 브라우저 다운로드 방식
   try{
     if(typeof navigator.msSaveOrOpenBlob==='function'){
       navigator.msSaveOrOpenBlob(sharePreparedBlob,filename);
@@ -832,12 +876,26 @@ function downloadCard(){
     a.click();
     a.remove();
     toast('결과 이미지 저장을 시작했습니다.');
+
+    // 일부 모바일 WebView는 download 속성을 무시한다. 사용자가 확실히 저장할 수 있도록 보조 안내를 제공한다.
+    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+      setTimeout(()=>showManualSaveSheet(),700);
+    }
   }catch(e){
     console.error(e);
-    const w=window.open(sharePreparedUrl,'_blank');
-    if(w)toast('새 화면의 이미지를 길게 눌러 저장해주세요.');
-    else toast('이미지 저장을 열지 못했습니다. 팝업 차단을 확인해주세요.');
+    showManualSaveSheet();
   }
+}
+function showManualSaveSheet(){
+  if(!sharePreparedUrl)return;
+  const old=document.getElementById('manualSaveSheet');
+  if(old)old.remove();
+  const wrap=document.createElement('div');
+  wrap.id='manualSaveSheet';
+  wrap.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:22px;';
+  wrap.innerHTML=`<div style="width:min(94vw,560px);background:#171411;border:1px solid rgba(238,230,215,.22);border-radius:18px;padding:16px;text-align:center;color:#eee6d7;box-shadow:0 18px 70px rgba(0,0,0,.5)"><div style="font-family:Pretendard,system-ui,sans-serif;font-size:14px;line-height:1.65;margin:4px 4px 12px">자동 저장이 되지 않는 브라우저입니다.<br><b>아래 이미지를 길게 눌러 ‘이미지 다운로드/저장’을 선택하세요.</b></div><img src="${sharePreparedUrl}" alt="저장할 결과 이미지" style="display:block;width:100%;height:auto;max-height:68vh;object-fit:contain;border-radius:12px;background:#0b0908"><button type="button" id="manualSaveClose" style="margin-top:14px;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(238,230,215,.18);background:#eee6d7;color:#171411;font-family:Pretendard,system-ui,sans-serif;font-weight:700">닫기</button></div>`;
+  document.body.appendChild(wrap);
+  document.getElementById('manualSaveClose').onclick=()=>wrap.remove();
 }
 function shareResultImage(){
   const {top}=window.__result||{};
