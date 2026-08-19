@@ -1356,9 +1356,7 @@ body{font-weight:400}
 <h3>문지방을 넘어온 것들</h3>
 <p>밤바다에서 시작된 실종. 오래된 가문과 금기. 사라졌던 요괴들이 돌아오면서 사건은 하나의 매듭으로 조여든다.</p>
 <div class="price"><span>종이책 17,700원</span><span>전자책 11,900원</span></div>
-<button class="btn primary mokgan-secondary" onclick="togglePreview()">1권 미리보기</button>
-<div class="preview-text" id="previewText">미리보기 영역입니다. 실제 공개 범위를 정하면 본문 일부 또는 별도 미리보기 페이지를 이곳에 연결할 수 있습니다.<br/><br/>
-<b style="color:#d2bd95">첫 장면 예고</b><br/>밤바다에서 낚시꾼들이 사라졌다. 사건을 추적하던 사람들은 익숙한 이름으로 그것을 부르지만, 죽음이 거듭될수록 진실은 다른 방향을 가리킨다.</div>
+<a class="btn primary mokgan-secondary" href="./preview">1권 미리보기</a>
 </div>
 <div class="panel reveal">
 <div class="tag">WHERE TO READ</div>
@@ -1416,9 +1414,6 @@ function slideScenes(dir){
   if(rail) rail.scrollBy({left:dir*438,behavior:'smooth'});
 }
 function track(name){console.log('[demo event]',name)}
-function togglePreview(){document.getElementById('previewText').classList.toggle('open');track('preview_click')}
-
-
 /* v6 carousel page indicators */
 function setupPager(railId,pagerId,itemSelector){
   const rail=document.getElementById(railId), pager=document.getElementById(pagerId);
