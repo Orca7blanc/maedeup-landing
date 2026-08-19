@@ -796,41 +796,28 @@ function downloadCard(){
 function shareResultImage(){
   const {top}=window.__result||{};
   if(!top)return;
-  if(!sharePreparedBlob||!sharePreparedFile){
+  if(!sharePreparedBlob){
     toast('결과 이미지가 아직 준비 중입니다. 잠시 뒤 다시 눌러주세요.');
     prepareShareAssets().catch(()=>{});
     return;
   }
-  const file=sharePreparedFile;
+  if(!(navigator.clipboard&&window.ClipboardItem)){
+    toast('이 브라우저는 이미지 복사를 지원하지 않습니다. 결과 이미지 저장을 이용해주세요.');
+    return;
+  }
   try{
-    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-      navigator.share({files:[file]}).catch(e=>{
-        if(e&&e.name==='AbortError')return;
-        console.error(e);
-        copyResultImageFallback();
-      });
-      return;
-    }
-  }catch(e){console.error(e)}
-  copyResultImageFallback();
-}
-function copyResultImageFallback(){
-  const blob=sharePreparedBlob;
-  if(!blob)return;
-  try{
-    if(navigator.clipboard&&window.ClipboardItem){
-      navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(()=>{
-        toast('결과 이미지를 복사했습니다. 채팅방에 붙여넣기 하세요.');
-      }).catch(e=>{
-        console.error(e);
-        downloadCard();
-        toast('공유 기능을 지원하지 않아 결과 이미지를 저장했습니다.');
-      });
-      return;
-    }
-  }catch(e){console.error(e)}
-  downloadCard();
-  toast('공유 기능을 지원하지 않아 결과 이미지를 저장했습니다.');
+    const type=sharePreparedBlob.type||'image/png';
+    const item=new ClipboardItem({[type]:sharePreparedBlob});
+    navigator.clipboard.write([item]).then(()=>{
+      toast('결과 이미지가 복사되었습니다. 이제 채팅방에 붙여넣기하세요.');
+    }).catch(e=>{
+      console.error(e);
+      toast('결과 이미지를 복사하지 못했습니다. 브라우저 권한을 확인하거나 결과 이미지 저장을 이용해주세요.');
+    });
+  }catch(e){
+    console.error(e);
+    toast('결과 이미지를 복사하지 못했습니다. 브라우저 권한을 확인하거나 결과 이미지 저장을 이용해주세요.');
+  }
 }
 function openBoardShare(){
   const {top,p}=window.__result||{};
