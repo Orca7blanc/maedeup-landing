@@ -841,8 +841,17 @@ async function downloadCard(){
     return;
   }
   const filename=`K오컬트_생존유형_${top.name}.png`;
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // Chrome/Edge 계열: 실제 '저장' 파일 선택기를 열고 Blob을 직접 쓴다.
+  // 모바일은 브라우저별 자동 다운로드 동작이 제각각이라,
+  // 결과 이미지를 바로 크게 띄우고 OS의 '이미지 저장/다운로드' 메뉴를 쓰게 한다.
+  // 별도의 파일 선택기/공유창은 열지 않는다.
+  if(isMobile){
+    showMobileSaveSheet(filename);
+    return;
+  }
+
+  // PC Chromium: 실제 저장 위치 선택기를 우선 사용한다.
   if(typeof window.showSaveFilePicker==='function'){
     try{
       const handle=await window.showSaveFilePicker({
@@ -860,7 +869,7 @@ async function downloadCard(){
     }
   }
 
-  // 일반 브라우저 다운로드 방식
+  // PC 일반 브라우저 다운로드 fallback
   try{
     if(typeof navigator.msSaveOrOpenBlob==='function'){
       navigator.msSaveOrOpenBlob(sharePreparedBlob,filename);
@@ -876,26 +885,48 @@ async function downloadCard(){
     a.click();
     a.remove();
     toast('결과 이미지 저장을 시작했습니다.');
-
-    // 일부 모바일 WebView는 download 속성을 무시한다. 사용자가 확실히 저장할 수 있도록 보조 안내를 제공한다.
-    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-      setTimeout(()=>showManualSaveSheet(),700);
-    }
   }catch(e){
     console.error(e);
-    showManualSaveSheet();
+    showMobileSaveSheet(filename);
   }
 }
-function showManualSaveSheet(){
-  if(!sharePreparedUrl)return;
+
+function resultCanvasDataUrl(){
+  try{
+    const canvas=document.getElementById('shareCanvas');
+    if(canvas&&canvas.width&&canvas.height)return canvas.toDataURL('image/png',0.96);
+  }catch(e){console.warn('canvas data URL failed',e)}
+  return sharePreparedUrl||'';
+}
+
+function showMobileSaveSheet(filename){
+  const src=resultCanvasDataUrl();
+  if(!src){
+    toast('결과 이미지를 불러오지 못했습니다. 잠시 뒤 다시 시도해주세요.');
+    return;
+  }
   const old=document.getElementById('manualSaveSheet');
   if(old)old.remove();
   const wrap=document.createElement('div');
   wrap.id='manualSaveSheet';
-  wrap.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:22px;';
-  wrap.innerHTML=`<div style="width:min(94vw,560px);background:#171411;border:1px solid rgba(238,230,215,.22);border-radius:18px;padding:16px;text-align:center;color:#eee6d7;box-shadow:0 18px 70px rgba(0,0,0,.5)"><div style="font-family:Pretendard,system-ui,sans-serif;font-size:14px;line-height:1.65;margin:4px 4px 12px">자동 저장이 되지 않는 브라우저입니다.<br><b>아래 이미지를 길게 눌러 ‘이미지 다운로드/저장’을 선택하세요.</b></div><img src="${sharePreparedUrl}" alt="저장할 결과 이미지" style="display:block;width:100%;height:auto;max-height:68vh;object-fit:contain;border-radius:12px;background:#0b0908"><button type="button" id="manualSaveClose" style="margin-top:14px;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(238,230,215,.18);background:#eee6d7;color:#171411;font-family:Pretendard,system-ui,sans-serif;font-weight:700">닫기</button></div>`;
+  wrap.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;-webkit-overflow-scrolling:touch;';
+  wrap.innerHTML=`<div style="width:min(96vw,620px);background:#171411;border:1px solid rgba(238,230,215,.22);border-radius:18px;padding:14px;text-align:center;color:#eee6d7;box-shadow:0 18px 70px rgba(0,0,0,.55);font-family:Pretendard,system-ui,sans-serif">
+    <div style="font-size:16px;font-weight:800;line-height:1.55;margin:4px 8px 5px">결과 이미지 저장</div>
+    <div style="font-size:13px;line-height:1.7;color:#c8bdad;margin:0 8px 13px">아래 결과 이미지를 <b style="color:#f1e7d7">길게 누른 뒤</b><br><b style="color:#f1e7d7">‘이미지 저장’ 또는 ‘이미지 다운로드’</b>를 선택하세요.</div>
+    <img id="manualSaveImage" src="${src}" alt="저장할 결과 이미지" draggable="false" style="display:block;width:100%;height:auto;max-height:68vh;object-fit:contain;border-radius:12px;background:#0b0908;-webkit-touch-callout:default;user-select:auto">
+    <a id="manualDownloadLink" href="${src}" download="${filename}" style="display:block;margin-top:12px;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(181,154,102,.55);background:#b59a66;color:#171411;text-decoration:none;font-weight:800">다운로드 한 번 더 시도</a>
+    <button type="button" id="manualSaveClose" style="margin-top:9px;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(238,230,215,.18);background:transparent;color:#eee6d7;font-family:Pretendard,system-ui,sans-serif;font-weight:700">결과 화면으로 돌아가기</button>
+  </div>`;
   document.body.appendChild(wrap);
   document.getElementById('manualSaveClose').onclick=()=>wrap.remove();
+  wrap.addEventListener('click',e=>{if(e.target===wrap)wrap.remove()});
+  toast('이미지를 길게 눌러 저장하세요.');
+}
+
+// 이전 버전 호환용 이름
+function showManualSaveSheet(){
+  const {top}=window.__result||{};
+  showMobileSaveSheet(`K오컬트_생존유형_${top?top.name:'결과'}.png`);
 }
 function shareResultImage(){
   const {top}=window.__result||{};
