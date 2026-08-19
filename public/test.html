@@ -1024,6 +1024,30 @@ body{font-weight:400}
 </style>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<!-- Kakao Talk Share + link preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="K-오컬트 생존유형 테스트">
+<meta property="og:description" content="금기를 마주친다면, 당신은 살아남을 수 있을까? 14개의 선택 · 약 3분 · 10가지 결과">
+<meta property="og:image" content="https://maedeup-landing.orca7blanc.workers.dev/test-share-og.png">
+<meta property="og:url" content="https://maedeup-landing.orca7blanc.workers.dev/test">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="K-오컬트 생존유형 테스트">
+<meta name="twitter:description" content="금기를 마주친다면, 당신은 살아남을 수 있을까?">
+<meta name="twitter:image" content="https://maedeup-landing.orca7blanc.workers.dev/test-share-og.png">
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js"
+  integrity="sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J"
+  crossorigin="anonymous"></script>
+<script>
+  try {
+    if (window.Kakao && !Kakao.isInitialized()) {
+      Kakao.init("b8d4faffb5612f01e36bc81892d32db5");
+    }
+  } catch (e) {
+    console.error("Kakao SDK init failed:", e);
+  }
+</script>
+
 </head>
 <body>
 <div id="app"></div>
@@ -1147,7 +1171,7 @@ function showResult(){
    <section class="section"><h3>당신 안의 다른 생존자</h3>
      ${ranks.slice(1,3).map((r,i)=>`<div class="smallCard rank"><div><b>${i+2}위 · ${esc(r.name)}</b><small>${esc(D.profiles[r.name].title)}</small></div><span>${r.sim}%</span></div>`).join("")}
    </section>
-   <section class="section actions"><button class="shareBtn" onclick="openBoardShare()">결과 공유하기</button><button class="ghost" onclick="shareResult()">결과 이미지 공유</button><button class="ghost" onclick="downloadCard()">결과 이미지 저장</button><button class="ghost" onclick="shareTest()">친구에게 테스트 보내기</button><button class="ghost" onclick="start()">다시 테스트하기</button><div class="share-note">“결과 공유하기”는 게시판 등록 화면으로 이동합니다. 이미지 공유·저장 기능은 그대로 사용할 수 있습니다.</div></section>
+   <section class="section actions"><button class="shareBtn" onclick="openBoardShare()">결과 공유하기</button><button class="ghost" onclick="shareResult()">결과 이미지 공유</button><button class="ghost" onclick="downloadCard()">결과 이미지 저장</button><button class="ghost" onclick="shareTest()">카카오톡으로 테스트 보내기</button><button class="ghost" onclick="start()">다시 테스트하기</button><div class="share-note">“결과 공유하기”는 게시판 등록 화면으로 이동합니다. 이미지 공유·저장 기능은 그대로 사용할 수 있습니다.</div></section>
    <section class="section bookCta"><div class="eyebrow">그런데 ${esc(top.name)}${topicParticle(top.name)} 누구일까요?</div><h3>소설 《매듭 문지방을 넘어온 것들》</h3><p>귀신과 요괴가 현실의 틈으로 스며드는 한국. 그 세계에서 살아가는 사람들의 이야기.</p><button class="ghost" onclick="goToWorld()">${esc(p.worldCta || "《매듭》 세계 보기")}</button></section>
     <section class="section landing-return">
       <div class="eyebrow">BACK TO MAEDEUP</div>
@@ -1174,23 +1198,50 @@ function isMobileShareDevice(){
    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
  }
  async function shareTest(){
-   const text='K-오컬트 생존유형 테스트. 금기를 마주친다면 당신은 어떻게 살아남을까?';
-   const url=cleanTestUrl();
-   const payload=text+(url?' '+url:'');
-   if(isMobileShareDevice() && navigator.share){
-     try{
-       await navigator.share({title:'K-오컬트 생존유형 테스트',text,url:url||undefined});
-       return;
-     }catch(e){ if(e&&e.name==='AbortError') return; }
-   }
-   try{
-     if(navigator.clipboard){
-       await navigator.clipboard.writeText(payload);
-       toast('테스트 링크를 복사했습니다. 카카오톡 채팅창에 붙여넣어 보내세요.');
+   const shareUrl='https://maedeup-landing.orca7blanc.workers.dev/test';
+   const imageUrl='https://maedeup-landing.orca7blanc.workers.dev/test-share-og.png';
+
+   /* 1순위: 카카오톡 공식 공유 카드 */
+   try {
+     if(window.Kakao && Kakao.Share && Kakao.isInitialized && Kakao.isInitialized()){
+       Kakao.Share.sendDefault({
+         objectType:'feed',
+         content:{
+           title:'K-오컬트 생존유형 테스트',
+           description:'금기를 마주친다면, 당신은 살아남을 수 있을까?\n14개의 선택 · 약 3분 · 10가지 결과',
+           imageUrl:imageUrl,
+           link:{
+             mobileWebUrl:shareUrl,
+             webUrl:shareUrl
+           }
+         },
+         buttons:[
+           {
+             title:'테스트하기',
+             link:{
+               mobileWebUrl:shareUrl,
+               webUrl:shareUrl
+             }
+           }
+         ]
+       });
        return;
      }
-   }catch(e){}
-   toast('테스트 주소를 복사해 친구에게 보내주세요.');
+   } catch(e) {
+     console.error('Kakao Talk share failed:',e);
+   }
+
+   /* 카카오 SDK를 불러오지 못한 경우 링크 복사 fallback */
+   const text='K-오컬트 생존유형 테스트. 금기를 마주친다면 당신은 어떻게 살아남을까?';
+   const payload=text+' '+shareUrl;
+   try {
+     if(navigator.clipboard){
+       await navigator.clipboard.writeText(payload);
+       toast('카카오톡 공유를 열지 못해 테스트 링크를 복사했습니다.');
+       return;
+     }
+   } catch(e) {}
+   toast('테스트 주소를 복사해 카카오톡으로 보내주세요.');
  }
 function toast(t){const n=document.createElement('div');n.className='toast';n.textContent=t;document.body.appendChild(n);setTimeout(()=>n.remove(),1900)}
 function roundedPath(ctx,x,y,w,h,r){
