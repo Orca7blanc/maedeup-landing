@@ -556,6 +556,9 @@ p, li, .quote, .bookCard p, .eyebrow, .rank, .desc, h1, h2, h3, h4, h5, h6, butt
 .briefing-btn{width:min(100%,430px)}
 @media(max-width:420px){.briefing-card{padding-top:34px}.briefing-copy{padding:22px 14px;font-size:14.5px}}
 
+.actions button:disabled{opacity:.52;cursor:wait;filter:saturate(.55)}
+.actions button:disabled:active{transform:none}
+
 /* final site overrides */
 html,body,button,input,textarea{font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!important}
 body{font-weight:400}
@@ -605,12 +608,28 @@ html,body,button,a,input,textarea,select,
 <script>
 const D=window.TEST_DATA, app=document.getElementById("app");
 let idx=0, chosen=[], axisRaw={Q:0,P:0,A:0,G:0,D:0,F:0,E:0};
+const RESULT_STATE_KEY='maedeup_test_result_state_v1';
+function saveResultSession(){try{sessionStorage.setItem(RESULT_STATE_KEY,JSON.stringify({chosen:[...chosen],savedAt:Date.now()}))}catch(e){}}
+function clearResultSession(){try{sessionStorage.removeItem(RESULT_STATE_KEY)}catch(e){}}
+function restoreResultSession(){
+  try{
+    const raw=sessionStorage.getItem(RESULT_STATE_KEY);
+    if(!raw)return false;
+    const data=JSON.parse(raw);
+    if(!Array.isArray(data.chosen)||data.chosen.length!==D.questions.length)return false;
+    chosen=data.chosen.map(Number);
+    idx=D.questions.length-1;
+    rebuildAxes();
+    showResult();
+    return true;
+  }catch(e){return false}
+}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
 function topicParticle(word){const last=[...String(word)].pop();if(!last)return "는";const code=last.charCodeAt(0);if(code>=0xAC00&&code<=0xD7A3)return ((code-0xAC00)%28)!==0?"은":"는";return "는"}
 function home(){app.innerHTML=`<main class="screen home-v4" id="homeScreen"><div class="home-grain"></div><div class="doorframe"></div><div class="red-thread"></div><div class="threshold"></div><div class="home-inner"><div class="eyebrow">당신이라면 살아남을 수 있을까</div><h1 class="home-title">K-오컬트<br>생존유형 테스트</h1><p class="home-sub">금기를 마주친 당신은<br>어떻게 살아남을까?</p><div class="home-meta"><span>14개의 상황</span><span>약 3분</span><span>10가지 유형</span></div><div class="warning-card">낯선 사람이 이름을 먼저 알고 있다면<br>문을 열지 마십시오.</div><button class="threshold-btn" onclick="crossThreshold()">문턱을 넘는다</button><div class="home-foot">정답은 없습니다. 아마도.</div></div></main>`}
 function crossThreshold(){const s=document.getElementById("homeScreen");if(s)s.classList.add("entering");setTimeout(briefing,420)}
 function briefing(){app.innerHTML=`<main class="screen briefing-screen"><section class="briefing-card"><div class="eyebrow">문턱을 넘기 전에</div><h2>이곳의 규칙을<br>먼저 알려드립니다.</h2><div class="briefing-copy"><p>이곳에서는 귀신과 요괴, 오래된 금기가 실제로 존재합니다.</p><p>이해할 수 없는 현상도 때로는 분명한 규칙을 따릅니다.</p><div class="briefing-divider"></div><p>정답을 찾으려 하지 마십시오.<br><strong>그 순간 당신이 가장 먼저 할 행동 하나를 선택하십시오.</strong></p></div><p class="briefing-note">당신이 무엇을 두려워하는지가 아니라,<br>두려울 때 무엇을 하는지를 봅니다.</p><button class="threshold-btn briefing-btn" onclick="start()">첫 번째 상황으로</button></section></main>`}
-function start(){idx=0;chosen=[];axisRaw={Q:0,P:0,A:0,G:0,D:0,F:0,E:0};question()}
+function start(){clearResultSession();idx=0;chosen=[];axisRaw={Q:0,P:0,A:0,G:0,D:0,F:0,E:0};question()}
 function question(){const q=D.questions[idx];app.innerHTML=`<main class="screen"><div class="top"><div class="progress"><i style="width:${((idx+1)/D.questions.length)*100}%"></i></div><div class="count">${String(idx+1).padStart(2,"0")} / 14</div></div><section class="question"><div class="eyebrow">금기를 마주한 순간</div><h2>${esc(q.q)}</h2>${q.sub?`<p class="sub">${esc(q.sub)}</p>`:""}<div class="answers">${q.answers.map((a,i)=>`<button class="answer" onclick="pick(${i})"><b>${"ABCD"[i]}</b><span>${esc(a.text)}</span></button>`).join("")}</div></section>${idx?`<button class="back" onclick="prev()">← 이전 질문</button>`:""}</main>`}
 function rebuildAxes(){axisRaw={Q:0,P:0,A:0,G:0,D:0,F:0,E:0};chosen.forEach((oi,qi)=>{Object.entries(D.questions[qi].answers[oi].axes).forEach(([k,v])=>axisRaw[k]+=v)})}
 function pick(i){chosen[idx]=i;rebuildAxes();if(idx<13){idx++;question()}else analyze()}
@@ -618,7 +637,7 @@ function prev(){if(idx>0){idx--;chosen=chosen.slice(0,idx);rebuildAxes();questio
 function analyze(){app.innerHTML=`<main class="screen analysis"><div class="pulse"></div><div class="eyebrow">문턱을 넘었습니다</div><h2 id="anText">선택을 확인하고 있습니다.</h2><p class="sub">잠시 뒤 당신의 생존 방식이 드러납니다.</p></main>`;setTimeout(()=>{document.getElementById("anText").textContent="살아남는 방식에는 저마다 다른 매듭이 있습니다."},700);setTimeout(showResult,1450)}
 function calcCharacters(){let raw={};Object.keys(D.profiles).forEach(c=>raw[c]=0);chosen.forEach((oi,qi)=>{const a=D.questions[qi].answers[oi];raw[a.primary]+=3;raw[a.secondary]+=1});let z={};Object.keys(raw).forEach(c=>z[c]=(raw[c]-D.scoreMeans[c])/D.scoreSds[c]);const ranked=Object.keys(z).map(c=>({name:c,z:z[c],raw:raw[c]})).sort((a,b)=>b.z-a.z);const topZ=ranked[0].z,gap12=Math.max(0,topZ-ranked[1].z),gap23=Math.max(0,ranked[1].z-ranked[2].z);ranked[0].sim=Math.max(82,Math.min(92,84+Math.round(Math.tanh(Math.max(0,topZ))*7)));ranked[1].sim=Math.max(60,Math.min(78,ranked[0].sim-10-Math.round(gap12*5)));ranked[2].sim=Math.max(48,Math.min(70,ranked[1].sim-7-Math.round(gap23*4)));for(let i=3;i<ranked.length;i++)ranked[i].sim=Math.max(35,ranked[2].sim-(i-2)*5);return ranked}
 function calcAxes(){const out={};Object.keys(D.axisNames).forEach(k=>{const r=axisRaw[k]/D.axisMax[k];out[k]=Math.max(0,Math.min(100,Math.round(100*Math.sqrt(r))))});return out}
-function showResult(){const ranks=calcCharacters(),top=ranks[0],p=D.profiles[top.name],axes=calcAxes();const axisRows=Object.keys(D.axisNames).map(k=>`<div class="barRow"><span>${D.axisNames[k]}</span><div class="bar"><i style="width:${axes[k]}%"></i></div><strong>${axes[k]}</strong></div>`).join("");const strengths=p.strength.map(x=>`<li>${esc(x)}</li>`).join("");const risks=p.risk.map(x=>`<li>${esc(x)}</li>`).join("");const media=p.image?`<div class="sheetWrap"><img class="sheetImage" src="${p.image}" alt="${esc(top.name)} 결과 장면"></div>`:`<div class="avatar">${esc(top.name.slice(-1))}</div>`;app.innerHTML=`<main class="screen result"><section class="heroResult"><div class="typeLabel">당신의 K-오컬트 생존유형</div><div class="typeTitle">${(p.titleLines||[p.title]).map(x=>`<span class="line">${esc(x)}</span>`).join("")}</div><div class="quote">“${esc(p.quote)}”</div></section><section class="reveal">${media}<div class="eyebrow">당신과 가장 닮은 인물</div><div class="name">${esc(top.name)}</div><div class="book">K-오컬트 소설 《매듭 문지방을 넘어온 것들》</div><div class="sim">유사도 <strong>${top.sim}%</strong></div></section><section class="section"><h3>당신의 생존 성향</h3>${axisRows}</section><section class="section analysisText"><h3>당신은 이런 사람입니다</h3>${(p.descParas||[p.desc]).map(t=>`<p>${esc(t)}</p>`).join("")}</section><section class="section"><div class="cards"><div class="smallCard"><b>강한 상황</b><ul class="list">${strengths}</ul></div><div class="smallCard"><b>위험한 순간</b><ul class="list">${risks}</ul></div></div></section><section class="section"><h3>당신 안의 다른 생존자</h3>${ranks.slice(1,3).map((r,i)=>`<div class="smallCard rank"><div><b>${i+2}위 · ${esc(r.name)}</b><small>${esc(D.profiles[r.name].title)}</small></div><span>${r.sim}%</span></div>`).join("")}</section><section class="section actions"><button class="shareBtn" onclick="shareResultImage()">친구에게 결과 공유하기</button><button class="ghost" onclick="downloadCard()">결과 이미지 저장</button><button class="ghost" onclick="openBoardShare()">생존자 기록 남기기</button><button class="ghost" onclick="shareTest()">친구에게 테스트 보내기</button><button class="ghost" onclick="start()">다시 테스트하기</button><div class="share-note">친구에게 결과 공유하기는 결과 이미지 한 장만 보냅니다.<br>생존자 기록 남기기는 생존자 게시판의 기록 팝업으로 이동합니다.</div></section><section class="section bookCta"><div class="eyebrow">그런데 ${esc(top.name)}${topicParticle(top.name)} 누구일까요?</div><h3>소설 《매듭 문지방을 넘어온 것들》</h3><p>귀신과 요괴가 현실의 틈으로 스며드는 한국. 그 세계에서 살아가는 사람들의 이야기.</p><button class="ghost" onclick="goToWorld()">${esc(p.worldCta||"《매듭》 세계 보기")}</button></section></main>`;window.__result={ranks,top,p,axes};shareBlobPromise=null;setTimeout(()=>{primeShareBlob().catch(()=>{})},0);window.scrollTo(0,0)}
+function showResult(){const ranks=calcCharacters(),top=ranks[0],p=D.profiles[top.name],axes=calcAxes();const axisRows=Object.keys(D.axisNames).map(k=>`<div class="barRow"><span>${D.axisNames[k]}</span><div class="bar"><i style="width:${axes[k]}%"></i></div><strong>${axes[k]}</strong></div>`).join("");const strengths=p.strength.map(x=>`<li>${esc(x)}</li>`).join("");const risks=p.risk.map(x=>`<li>${esc(x)}</li>`).join("");const media=p.image?`<div class="sheetWrap"><img class="sheetImage" src="${p.image}" alt="${esc(top.name)} 결과 장면"></div>`:`<div class="avatar">${esc(top.name.slice(-1))}</div>`;app.innerHTML=`<main class="screen result"><section class="heroResult"><div class="typeLabel">당신의 K-오컬트 생존유형</div><div class="typeTitle">${(p.titleLines||[p.title]).map(x=>`<span class="line">${esc(x)}</span>`).join("")}</div><div class="quote">“${esc(p.quote)}”</div></section><section class="reveal">${media}<div class="eyebrow">당신과 가장 닮은 인물</div><div class="name">${esc(top.name)}</div><div class="book">K-오컬트 소설 《매듭 문지방을 넘어온 것들》</div><div class="sim">유사도 <strong>${top.sim}%</strong></div></section><section class="section"><h3>당신의 생존 성향</h3>${axisRows}</section><section class="section analysisText"><h3>당신은 이런 사람입니다</h3>${(p.descParas||[p.desc]).map(t=>`<p>${esc(t)}</p>`).join("")}</section><section class="section"><div class="cards"><div class="smallCard"><b>강한 상황</b><ul class="list">${strengths}</ul></div><div class="smallCard"><b>위험한 순간</b><ul class="list">${risks}</ul></div></div></section><section class="section"><h3>당신 안의 다른 생존자</h3>${ranks.slice(1,3).map((r,i)=>`<div class="smallCard rank"><div><b>${i+2}위 · ${esc(r.name)}</b><small>${esc(D.profiles[r.name].title)}</small></div><span>${r.sim}%</span></div>`).join("")}</section><section class="section actions"><button class="shareBtn" onclick="openBoardShare()">생존자 기록 남기기</button><button class="ghost" id="downloadResultBtn" onclick="downloadCard()" disabled>결과 이미지 준비 중…</button><button class="ghost" id="shareResultBtn" onclick="shareResultImage()" disabled>친구에게 결과 공유하기</button><button class="ghost" onclick="shareTest()">친구에게 테스트 보내기</button><button class="ghost" onclick="start()">다시 테스트하기</button><div class="share-note" id="shareReadyNote">결과 이미지를 준비하고 있습니다.</div></section><section class="section bookCta"><div class="eyebrow">그런데 ${esc(top.name)}${topicParticle(top.name)} 누구일까요?</div><h3>소설 《매듭 문지방을 넘어온 것들》</h3><p>귀신과 요괴가 현실의 틈으로 스며드는 한국. 그 세계에서 살아가는 사람들의 이야기.</p><button class="ghost" onclick="goToWorld()">${esc(p.worldCta||"《매듭》 세계 보기")}</button></section></main>`;window.__result={ranks,top,p,axes};saveResultSession();resetShareAssets();setTimeout(()=>{prepareShareAssets().catch(()=>{})},0);window.scrollTo(0,0)}
 function cleanTestUrl(){if(location.protocol==='http:'||location.protocol==='https:')return location.origin+location.pathname;return ''}
 function shareCopy(){const {top,p}=window.__result;return `나는 K-오컬트 생존유형 ‘${p.title}’ — ${top.name}형 ${top.sim}% 나옴. 너는?`}
 function shareTest(){
@@ -645,67 +664,145 @@ function shareTest(){
     toast('카카오톡 공유를 열지 못했습니다. 잠시 후 다시 시도해주세요.');
   }
 }
-function loadImage(src){return new Promise((resolve,reject)=>{const im=new Image();im.decoding='async';im.onload=async()=>{try{if(im.decode)await im.decode()}catch(e){}resolve(im)};im.onerror=reject;im.src=new URL(src,location.origin).href})}
+function loadImage(src){return new Promise((resolve,reject)=>{const im=new Image();im.decoding='async';im.onload=async()=>{try{if(im.decode)await im.decode()}catch(e){}resolve(im)};im.onerror=()=>reject(new Error('결과 장면 이미지를 불러오지 못했습니다.'));im.src=/^data:/i.test(src)?src:new URL(src,location.href).href})}
 async function ensureShareFont(){try{if(document.fonts&&document.fonts.load){await document.fonts.load('700 68px "KoPubWorld Batang"');await document.fonts.ready}}catch(e){}}
-async function buildShareBlob(){const {top,p}=window.__result;await ensureShareFont();const c=document.getElementById('shareCanvas'),ctx=c.getContext('2d');c.width=1080;c.height=1350;ctx.clearRect(0,0,c.width,c.height);const font='"KoPubWorld Batang","KoPub Batang",Batang,serif';ctx.fillStyle='#110e0c';ctx.fillRect(0,0,c.width,c.height);const bg=ctx.createRadialGradient(190,100,10,190,100,800);bg.addColorStop(0,'rgba(116,39,27,.42)');bg.addColorStop(1,'rgba(17,14,12,0)');ctx.fillStyle=bg;ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='rgba(180,147,88,.7)';ctx.lineWidth=2;roundedPath(ctx,54,54,972,1242,30);ctx.stroke();ctx.textAlign='left';ctx.fillStyle='#ad9361';ctx.font=`400 27px ${font}`;ctx.fillText('당신의 K-오컬트 생존유형',88,118);ctx.fillStyle='#f0e7d8';ctx.font=`700 66px ${font}`;let y=212;for(const line of (p.titleLines||[p.title])){ctx.fillText(line,88,y);y+=78}ctx.fillStyle='#cbbdac';ctx.font=`400 30px ${font}`;y=wrapCanvasText(ctx,'“'+p.quote+'”',88,y+18,900,44,3);if(p.image){try{const im=await loadImage(p.image),box={x:88,y:y+26,w:904,h:510};const ir=im.width/im.height,br=box.w/box.h;let sx=0,sy=0,sw=im.width,sh=im.height;if(ir>br){sw=im.height*br;sx=(im.width-sw)/2}else{sh=im.width/br;sy=(im.height-sh)/2}ctx.save();roundedPath(ctx,box.x,box.y,box.w,box.h,24);ctx.clip();ctx.drawImage(im,sx,sy,sw,sh,box.x,box.y,box.w,box.h);const shade=ctx.createLinearGradient(0,box.y,0,box.y+box.h);shade.addColorStop(.52,'rgba(0,0,0,0)');shade.addColorStop(1,'rgba(0,0,0,.52)');ctx.fillStyle=shade;ctx.fillRect(box.x,box.y,box.w,box.h);ctx.restore();y=box.y+box.h}catch(e){}}ctx.textAlign='center';ctx.fillStyle='#b59a66';ctx.font=`400 25px ${font}`;ctx.fillText('당신과 가장 닮은 인물',540,y+62);ctx.fillStyle='#f1e8da';ctx.font=`700 55px ${font}`;ctx.fillText(top.name,540,y+126);ctx.font=`400 32px ${font}`;ctx.fillText(`유사도 ${top.sim}%`,540,y+177);ctx.fillStyle='#a99b88';ctx.font=`400 24px ${font}`;ctx.fillText('K-오컬트 소설 《매듭 문지방을 넘어온 것들》',540,y+224);ctx.fillStyle='#766d62';ctx.font=`400 19px ${font}`;ctx.fillText('금기를 마주친 당신은 어떻게 살아남을까?',540,1262);return new Promise(resolve=>c.toBlob(resolve,'image/png',.96))}
+async function buildShareBlob(){const {top,p}=window.__result;await ensureShareFont();const c=document.getElementById('shareCanvas'),ctx=c.getContext('2d');c.width=1080;c.height=1350;ctx.clearRect(0,0,c.width,c.height);const font='"KoPubWorld Batang","KoPub Batang",Batang,serif';ctx.fillStyle='#110e0c';ctx.fillRect(0,0,c.width,c.height);const bg=ctx.createRadialGradient(190,100,10,190,100,800);bg.addColorStop(0,'rgba(116,39,27,.42)');bg.addColorStop(1,'rgba(17,14,12,0)');ctx.fillStyle=bg;ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='rgba(180,147,88,.7)';ctx.lineWidth=2;roundedPath(ctx,54,54,972,1242,30);ctx.stroke();ctx.textAlign='left';ctx.fillStyle='#ad9361';ctx.font=`400 27px ${font}`;ctx.fillText('당신의 K-오컬트 생존유형',88,118);ctx.fillStyle='#f0e7d8';ctx.font=`700 66px ${font}`;let y=212;for(const line of (p.titleLines||[p.title])){ctx.fillText(line,88,y);y+=78}ctx.fillStyle='#cbbdac';ctx.font=`400 30px ${font}`;y=wrapCanvasText(ctx,'“'+p.quote+'”',88,y+18,900,44,3);if(p.image){try{const im=await loadImage(p.image),box={x:88,y:y+26,w:904,h:510};const ir=im.width/im.height,br=box.w/box.h;let sx=0,sy=0,sw=im.width,sh=im.height;if(ir>br){sw=im.height*br;sx=(im.width-sw)/2}else{sh=im.width/br;sy=(im.height-sh)/2}ctx.save();roundedPath(ctx,box.x,box.y,box.w,box.h,24);ctx.clip();ctx.drawImage(im,sx,sy,sw,sh,box.x,box.y,box.w,box.h);const shade=ctx.createLinearGradient(0,box.y,0,box.y+box.h);shade.addColorStop(.52,'rgba(0,0,0,0)');shade.addColorStop(1,'rgba(0,0,0,.52)');ctx.fillStyle=shade;ctx.fillRect(box.x,box.y,box.w,box.h);ctx.restore();y=box.y+box.h}catch(e){}}ctx.textAlign='center';ctx.fillStyle='#b59a66';ctx.font=`400 25px ${font}`;ctx.fillText('당신과 가장 닮은 인물',540,y+62);ctx.fillStyle='#f1e8da';ctx.font=`700 55px ${font}`;ctx.fillText(top.name,540,y+126);ctx.font=`400 32px ${font}`;ctx.fillText(`유사도 ${top.sim}%`,540,y+177);ctx.fillStyle='#a99b88';ctx.font=`400 24px ${font}`;ctx.fillText('K-오컬트 소설 《매듭 문지방을 넘어온 것들》',540,y+224);ctx.fillStyle='#766d62';ctx.font=`400 19px ${font}`;ctx.fillText('금기를 마주친 당신은 어떻게 살아남을까?',540,1262);return canvasToPngBlob(c)}
 let shareBlobPromise=null;
-function primeShareBlob(){
-  if(!window.__result) return Promise.resolve(null);
-  if(!shareBlobPromise) shareBlobPromise=buildShareBlob().catch(e=>{console.error(e);shareBlobPromise=null;return null});
+let sharePreparedBlob=null;
+let sharePreparedFile=null;
+let sharePreparedUrl=null;
+function resetShareAssets(){
+  if(sharePreparedUrl){try{URL.revokeObjectURL(sharePreparedUrl)}catch(e){}}
+  shareBlobPromise=null;
+  sharePreparedBlob=null;
+  sharePreparedFile=null;
+  sharePreparedUrl=null;
+}
+function setShareReady(ready,message){
+  const saveBtn=document.getElementById('downloadResultBtn');
+  const shareBtn=document.getElementById('shareResultBtn');
+  const note=document.getElementById('shareReadyNote');
+  if(saveBtn){saveBtn.disabled=!ready;saveBtn.textContent=ready?'결과 이미지 저장':'결과 이미지 준비 중…'}
+  if(shareBtn)shareBtn.disabled=!ready;
+  if(note)note.textContent=message||'';
+}
+function canvasToPngBlob(canvas){
+  return new Promise((resolve,reject)=>{
+    try{
+      if(canvas.toBlob){
+        canvas.toBlob(blob=>{
+          if(blob)return resolve(blob);
+          try{
+            const data=canvas.toDataURL('image/png');
+            const parts=data.split(',');
+            const bin=atob(parts[1]);
+            const bytes=new Uint8Array(bin.length);
+            for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+            resolve(new Blob([bytes],{type:'image/png'}));
+          }catch(e){reject(e)}
+        },'image/png',0.96);
+      }else{
+        const data=canvas.toDataURL('image/png');
+        const parts=data.split(',');
+        const bin=atob(parts[1]);
+        const bytes=new Uint8Array(bin.length);
+        for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+        resolve(new Blob([bytes],{type:'image/png'}));
+      }
+    }catch(e){reject(e)}
+  });
+}
+async function prepareShareAssets(){
+  if(sharePreparedBlob&&sharePreparedFile&&sharePreparedUrl)return sharePreparedBlob;
+  if(shareBlobPromise)return shareBlobPromise;
+  setShareReady(false,'결과 이미지를 준비하고 있습니다.');
+  shareBlobPromise=(async()=>{
+    const blob=await buildShareBlob();
+    if(!blob)throw new Error('결과 이미지 생성 실패');
+    const {top}=window.__result||{};
+    if(!top)throw new Error('결과 정보가 없습니다.');
+    const filename=`K오컬트_생존유형_${top.name}.png`;
+    sharePreparedBlob=blob;
+    sharePreparedFile=new File([blob],filename,{type:'image/png'});
+    sharePreparedUrl=URL.createObjectURL(blob);
+    setShareReady(true,'결과 이미지를 저장하거나 친구에게 바로 공유할 수 있습니다.');
+    return blob;
+  })().catch(e=>{
+    console.error(e);
+    shareBlobPromise=null;
+    setShareReady(false,'결과 이미지 준비에 실패했습니다. 결과 화면을 새로 열어 다시 시도해주세요.');
+    throw e;
+  });
   return shareBlobPromise;
 }
-function downloadBlob(blob,filename){
-  const u=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=u;
-  a.download=filename;
-  a.rel='noopener';
-  a.style.display='none';
-  document.body.appendChild(a);
-  try{a.click()}catch(e){window.open(u,'_blank','noopener')}
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(u),10000);
-}
-async function downloadCard(){
+function downloadCard(){
   const {top}=window.__result||{};
   if(!top)return;
-  const blob=await primeShareBlob();
-  if(!blob)return toast('이미지를 만들지 못했습니다. 다시 눌러주세요.');
+  if(!sharePreparedBlob||!sharePreparedUrl){
+    toast('결과 이미지가 아직 준비 중입니다. 잠시 뒤 다시 눌러주세요.');
+    prepareShareAssets().catch(()=>{});
+    return;
+  }
   const filename=`K오컬트_생존유형_${top.name}.png`;
   try{
-    downloadBlob(blob,filename);
-    toast('결과 이미지를 저장했습니다.');
-  }catch(e){
-    console.error(e);
-    const u=URL.createObjectURL(blob);
-    window.open(u,'_blank','noopener');
-    setTimeout(()=>URL.revokeObjectURL(u),15000);
-    toast('새 화면의 이미지를 길게 눌러 저장해주세요.');
-  }
-}
-async function shareResultImage(){
-  const {top}=window.__result||{};
-  if(!top)return;
-  const blob=await primeShareBlob();
-  if(!blob)return toast('공유 이미지를 만들지 못했습니다. 다시 눌러주세요.');
-  const file=new File([blob],`K오컬트_생존유형_${top.name}.png`,{type:'image/png'});
-  try{
-    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file]});
+    if(typeof navigator.msSaveOrOpenBlob==='function'){
+      navigator.msSaveOrOpenBlob(sharePreparedBlob,filename);
+      toast('결과 이미지 저장을 시작했습니다.');
       return;
     }
+    const a=document.createElement('a');
+    a.href=sharePreparedUrl;
+    a.download=filename;
+    a.rel='noopener';
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast('결과 이미지 저장을 시작했습니다.');
   }catch(e){
-    if(e&&e.name==='AbortError')return;
     console.error(e);
+    const w=window.open(sharePreparedUrl,'_blank');
+    if(w)toast('새 화면의 이미지를 길게 눌러 저장해주세요.');
+    else toast('이미지 저장을 열지 못했습니다. 팝업 차단을 확인해주세요.');
   }
+}
+function shareResultImage(){
+  const {top}=window.__result||{};
+  if(!top)return;
+  if(!sharePreparedBlob||!sharePreparedFile){
+    toast('결과 이미지가 아직 준비 중입니다. 잠시 뒤 다시 눌러주세요.');
+    prepareShareAssets().catch(()=>{});
+    return;
+  }
+  const file=sharePreparedFile;
   try{
-    if(navigator.clipboard && window.ClipboardItem){
-      await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
-      toast('결과 이미지를 복사했습니다. 채팅방에 붙여넣기 하세요.');
+    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+      navigator.share({files:[file]}).catch(e=>{
+        if(e&&e.name==='AbortError')return;
+        console.error(e);
+        copyResultImageFallback();
+      });
       return;
     }
   }catch(e){console.error(e)}
-  downloadBlob(blob,file.name);
+  copyResultImageFallback();
+}
+function copyResultImageFallback(){
+  const blob=sharePreparedBlob;
+  if(!blob)return;
+  try{
+    if(navigator.clipboard&&window.ClipboardItem){
+      navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(()=>{
+        toast('결과 이미지를 복사했습니다. 채팅방에 붙여넣기 하세요.');
+      }).catch(e=>{
+        console.error(e);
+        downloadCard();
+        toast('공유 기능을 지원하지 않아 결과 이미지를 저장했습니다.');
+      });
+      return;
+    }
+  }catch(e){console.error(e)}
+  downloadCard();
   toast('공유 기능을 지원하지 않아 결과 이미지를 저장했습니다.');
 }
 function openBoardShare(){
@@ -721,7 +818,7 @@ function openBoardShare(){
   location.href=u.href;
 }
 function goToWorld(){const {top}=window.__result;location.href=`./index.html?type=${encodeURIComponent(top.name)}&score=${top.sim}`}
-home();
+if(!restoreResultSession())home();
 </script>
 </body>
 </html>
