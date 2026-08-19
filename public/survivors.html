@@ -170,6 +170,25 @@ body{font-weight:400}
   }
 }
 
+
+
+/* ===== V9 universal typography: KoPub titles + Pretendard UI/body ===== */
+:root{
+  --font-title:"KoPubWorld Batang","KoPub Batang",Batang,serif;
+  --font-ui:"Pretendard Variable","Pretendard","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+html,body,button,a,input,textarea,select,
+.navcta,.hero p,.countline,.chip,.sortBtn,.boardStatus,.serial,.when,
+.char,.nick,.comment,.score,.like,.mokBtn,.gate,.resultPreview span,
+.field label,.field input,.field textarea,.counter,.consent,.modalActions button,.foot{
+  font-family:var(--font-ui)!important;
+}
+.logo,.eyebrow,.hero h1,.type,.modal h2,.resultPreview b,.resultPreview strong,.board-return a{
+  font-family:var(--font-title)!important;
+}
+.mokBtn,.chip,.sortBtn,.navcta,.modalActions button{font-weight:650!important}
+.comment,.boardStatus,.gate,.resultPreview span,.consent,.field input,.field textarea,.foot{font-weight:400!important}
+
 </style>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -186,10 +205,15 @@ body{font-weight:400}
 const PENDING='maedeup_pending_result_v1';
 const NAMES=['전체','자별','행','도경','은황','금황','범준','아유','신기','삼랑','중기'];
 const TITLE={자별:'판을 다시 짜는 생존자',행:'끝없이 파고드는 탐구자',도경:'끝을 볼 때까지 파고드는 몰입자',은황:'두려워도 곁을 지키는 수호자',금황:'말없이 먼저 막아서는 실용가',범준:'정면으로 버티는 의리파',아유:'의문을 바로 쏘는 직설 탐색자',신기:'결국 끝까지 해내는 실무자',삼랑:'흐름을 읽고 살아남는 적응자',중기:'사고가 나기 전에 막아놓는 관리자'};
-let filter='전체',sort='latest',currentRows=[];
+let filter='전체',sort='latest',currentRows=[],hasPosted=false;
 const $=q=>document.querySelector(q),esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function pending(){try{return JSON.parse(localStorage.getItem(PENDING)||'null')}catch(e){return null}}
 function clientId(){let x=localStorage.getItem('maedeup_client_id_v1');if(!x){x=(crypto.randomUUID?crypto.randomUUID():'c'+Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem('maedeup_client_id_v1',x)}return x}
+function importPendingFromQuery(){
+  const q=new URLSearchParams(location.search),name=q.get('type'),score=Number(q.get('score'));
+  if(!name||!TITLE[name]||!Number.isFinite(score)||score<0||score>100)return;
+  try{localStorage.setItem(PENDING,JSON.stringify({name,title:TITLE[name],score:Math.round(score),createdAt:Date.now()}))}catch(e){}
+}
 function renderFilters(){const host=$('#filters');host.innerHTML=NAMES.map(n=>`<button class="chip ${n===filter?'active':''}" onclick="setFilter('${n}')">${n}</button>`).join('')}
 function setFilter(n){filter=n;renderFilters();loadRows()}
 function setSort(n){sort=n;document.querySelectorAll('.sortBtn').forEach(b=>b.classList.toggle('active',b.dataset.sort===n));loadRows()}
@@ -201,7 +225,7 @@ async function loadRows(){
     const r=await fetch('/api/survivors?'+qs.toString(),{headers:{accept:'application/json'}});
     const data=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(data.error||'게시판 연결 오류');
-    currentRows=Array.isArray(data.rows)?data.rows:[];
+    currentRows=Array.isArray(data.rows)?data.rows:[];hasPosted=!!data.has_posted;
     $('#countline').innerHTML=data.total?`지금까지 <strong>${data.total}명</strong>이 문턱을 넘었습니다.`:'첫 생존 기록을 기다리고 있습니다.';
     const status=document.querySelector('.boardStatus'); if(status) status.textContent='테스트를 완료한 결과만 등록할 수 있습니다. 닉네임과 한마디는 공개됩니다.';
     render();
@@ -215,13 +239,13 @@ function render(){const host=$('#cards');if(!currentRows.length){host.innerHTML=
   host.innerHTML=currentRows.map((x,i)=>`<article class="post"><div class="postTop"><span class="serial">${String(i+1).padStart(2,'0')}</span><span class="when">${when(x.created_at)}</span></div><div class="char">${esc(x.result_type)}${x.score!=null?` · ${x.score}%`:''}</div><div class="type">${esc(x.result_title||TITLE[x.result_type]||'생존자')}</div><div class="nick">${esc(x.nickname||'무명')}</div><div class="comment">“${esc(x.comment||'기록을 남겼습니다.')}”</div><div class="postBottom"><span class="score">K-오컬트 생존유형</span><button class="like ${x.liked?'liked':''}" onclick="like(${Number(x.id)})">♡ ${Number(x.likes||0)}</button></div></article>`).join('')}
 function when(t){const d=new Date(t),diff=Date.now()-d;if(!isFinite(diff))return'최근';if(diff<60000)return'방금 전';if(diff<3600000)return`${Math.max(1,Math.floor(diff/60000))}분 전`;if(diff<86400000)return`${Math.floor(diff/3600000)}시간 전`;return`${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')}`}
 async function like(id){try{const r=await fetch('/api/like',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({post_id:id,client_id:clientId()})});const data=await r.json();if(!r.ok)throw new Error(data.error||'좋아요 실패');await loadRows()}catch(e){alert(e.message)}}
-function openShare(){const p=pending();$('#modalBackdrop').classList.add('show');document.body.style.overflow='hidden';if(!p||!p.name){$('#modalContent').innerHTML=`<div class="modalHead"><div><div class="eyebrow">YOUR RESULT</div><h2>먼저 문턱을 넘어주세요.</h2></div><button class="close" onclick="closeModal()">×</button></div><div class="gate">게시판에는 테스트를 완료한 결과만 남길 수 있습니다.<div class="resultGateBtn"><a class="quietBtn mokBtn secondary" href="./test.html">테스트 하러 가기</a></div></div>`;return}
+function openShare(){const p=pending();$('#modalBackdrop').classList.add('show');document.body.style.overflow='hidden';if(hasPosted){$('#modalContent').innerHTML=`<div class="modalHead"><div><div class="eyebrow">TRACE ALREADY LEFT</div><h2>이미 생존 기록을 남겼습니다.</h2></div><button class="close" onclick="closeModal()">×</button></div><div class="gate">같은 브라우저에서는 생존 기록을 한 번만 남길 수 있습니다.<div class="resultGateBtn"><button class="quietBtn mokBtn secondary" type="button" onclick="closeModal()">게시판 보기</button></div></div>`;return}if(!p||!p.name){$('#modalContent').innerHTML=`<div class="modalHead"><div><div class="eyebrow">YOUR RESULT</div><h2>먼저 문턱을 넘어주세요.</h2></div><button class="close" onclick="closeModal()">×</button></div><div class="gate">게시판에는 테스트를 완료한 결과만 남길 수 있습니다.<div class="resultGateBtn"><a class="quietBtn mokBtn secondary" href="./test.html">테스트 하러 가기</a></div></div>`;return}
   $('#modalContent').innerHTML=`<div class="modalHead"><div><div class="eyebrow">LEAVE YOUR TRACE</div><h2>결과를 남깁니다.</h2></div><button class="close" onclick="closeModal()">×</button></div><div class="resultPreview"><b>당신의 결과</b><strong>${esc(p.name)}</strong><span>${esc(p.title||TITLE[p.name]||'생존자')}${p.score!=null?` · 유사도 ${esc(p.score)}%`:''}</span></div><form onsubmit="submitPost(event)"><div class="field"><label>닉네임 · 최대 12자</label><input id="nickname" maxlength="12" placeholder="무명" autocomplete="off"></div><div class="field"><label>한마디 · 최대 60자</label><textarea id="comment" maxlength="60" placeholder="테스트 결과에 대한 한마디를 남겨주세요." oninput="countChars()"></textarea><div class="counter" id="counter">0 / 60</div></div><label class="consent"><input id="consent" type="checkbox" required><span>내 테스트 결과와 입력한 내용을 공개 게시판에 표시하는 데 동의합니다.</span></label><div class="modalActions"><button class="primaryBtn mokBtn primary" type="submit">문턱 너머에 남기기</button><button class="quietBtn mokBtn secondary" type="button" onclick="closeModal()">취소</button></div></form>`}
 function countChars(){const e=$('#comment');if(e)$('#counter').textContent=`${e.value.length} / 60`}
-async function submitPost(e){e.preventDefault();const p=pending();if(!p)return;const nickname=($('#nickname').value||'무명').trim().slice(0,12)||'무명';const comment=($('#comment').value||'').trim().slice(0,60)||'결과를 남겼습니다.';const token=`${clientId()}|${p.name}|${p.score}|${p.createdAt||''}`;try{const r=await fetch('/api/survivors',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({result_type:p.name,score:Number(p.score),nickname,comment,share_token:token})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'등록 실패');closeModal();filter='전체';sort='latest';renderFilters();document.querySelectorAll('.sortBtn').forEach(b=>b.classList.toggle('active',b.dataset.sort==='latest'));await loadRows();window.scrollTo({top:document.querySelector('.board').offsetTop-56,behavior:'smooth'})}catch(err){alert(err.message)}}
+async function submitPost(e){e.preventDefault();const p=pending();if(!p)return;const nickname=($('#nickname').value||'무명').trim().slice(0,12)||'무명';const comment=($('#comment').value||'').trim().slice(0,60)||'결과를 남겼습니다.';const token=`${clientId()}|single`;try{const r=await fetch('/api/survivors',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({result_type:p.name,score:Number(p.score),nickname,comment,share_token:token})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'등록 실패');hasPosted=true;closeModal();filter='전체';sort='latest';renderFilters();document.querySelectorAll('.sortBtn').forEach(b=>b.classList.toggle('active',b.dataset.sort==='latest'));await loadRows();window.scrollTo({top:document.querySelector('.board').offsetTop-56,behavior:'smooth'})}catch(err){alert(err.message)}}
 function closeModal(){$('#modalBackdrop').classList.remove('show');document.body.style.overflow=''}
 function backdropClose(e){if(e.target.id==='modalBackdrop')closeModal()}
-renderFilters();loadRows();if(new URLSearchParams(location.search).get('share')==='1')setTimeout(openShare,120);
+importPendingFromQuery();renderFilters();(async()=>{await loadRows();if(new URLSearchParams(location.search).get('share')==='1')openShare()})();
 </script>
 </body>
 </html>

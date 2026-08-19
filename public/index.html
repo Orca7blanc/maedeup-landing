@@ -1129,6 +1129,22 @@ body{font-weight:400}
   }
 }
 
+
+
+/* ===== V12 universal typography: KoPub titles + Pretendard UI/body ===== */
+:root{
+  --font-title:"KoPubWorld Batang","KoPub Batang",Batang,serif;
+  --font-ui:"Pretendard Variable","Pretendard","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+html,body,button,a,input,textarea,select,
+.navlinks,.navcta,p,.eyebrow,.meta,.caption,.desc,.small,.note,.cta,.btn{
+  font-family:var(--font-ui)!important;
+}
+.logo,h1,h2,h3,.section-title,.title,.book-title,.card-title{
+  font-family:var(--font-title)!important;
+}
+button,.navlinks,.navcta,.cta,.btn{font-weight:650}
+
 </style>
 <style id="v13-mokgan-fixed">
 /* ===== V13 목간 버튼 수정본 =====
