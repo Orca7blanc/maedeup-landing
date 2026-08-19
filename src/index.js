@@ -53,7 +53,12 @@ async function listSurvivors(url, env){
   const sql=`SELECT s.id,s.result_type,s.result_title,s.score,s.nickname,s.comment,s.created_at,s.likes,${likeSelect} FROM survivors s ${join} WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ?`;
   const rows=(await env.DB.prepare(sql).bind(...params,limit).all()).results||[];
   const totalRow=await env.DB.prepare("SELECT COUNT(*) AS n FROM survivors WHERE status='visible'").first();
-  return json({rows,total:Number(totalRow?.n||0)});
+  let hasPosted=false;
+  if(client && validClient(client)){
+    const posted=await env.DB.prepare("SELECT 1 AS x FROM survivors WHERE substr(share_token,1,instr(share_token,'|')-1)=? LIMIT 1").bind(client).first();
+    hasPosted=!!posted;
+  }
+  return json({rows,total:Number(totalRow?.n||0),has_posted:hasPosted});
 }
 
 async function createSurvivor(request, env){
@@ -65,6 +70,10 @@ async function createSurvivor(request, env){
   if(comment.length<1||comment.length>60) return json({error:'한마디는 1~60자로 입력해 주세요.'},400);
   if(/https?:\/\/|www\./i.test(comment+nickname)) return json({error:'링크는 게시할 수 없습니다.'},400);
   if(token.length<8) return json({error:'테스트 결과 토큰이 없습니다.'},400);
+  const client=token.split('|')[0];
+  if(!validClient(client)) return json({error:'방문자 식별 정보가 올바르지 않습니다.'},400);
+  const already=await env.DB.prepare("SELECT id FROM survivors WHERE substr(share_token,1,instr(share_token,'|')-1)=? LIMIT 1").bind(client).first();
+  if(already) return json({error:'이미 생존 기록을 남겼습니다.'},409);
   try{
     const r=await env.DB.prepare(`INSERT INTO survivors(result_type,result_title,score,nickname,comment,share_token) VALUES(?,?,?,?,?,?)`).bind(type,TITLES[type],score,nickname,comment,token).run();
     return json({ok:true,id:r.meta?.last_row_id||null},201);
