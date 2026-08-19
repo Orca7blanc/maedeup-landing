@@ -928,27 +928,43 @@ function showManualSaveSheet(){
   const {top}=window.__result||{};
   showMobileSaveSheet(`K오컬트_생존유형_${top?top.name:'결과'}.png`);
 }
-function shareResultImage(){
+async function shareResultImage(){
   const {top}=window.__result||{};
   if(!top)return;
-  if(!sharePreparedBlob){
+  if(!sharePreparedBlob||!sharePreparedFile){
     toast('결과 이미지가 아직 준비 중입니다. 잠시 뒤 다시 눌러주세요.');
     prepareShareAssets().catch(()=>{});
     return;
   }
+
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&innerWidth<900);
+
+  // 모바일 브라우저는 PNG 이미지 클립보드 복사가 기기/브라우저별로 불안정하다.
+  // 모바일에서는 이미지 파일 자체를 운영체제 공유창으로 넘긴다.
+  if(isMobile){
+    try{
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[sharePreparedFile]}))){
+        await navigator.share({files:[sharePreparedFile]});
+        toast('공유를 마쳤습니다. 결과 화면은 그대로 유지됩니다.');
+        return;
+      }
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+      console.error(e);
+    }
+    toast('이 브라우저에서는 이미지 바로 공유가 어렵습니다. 결과 이미지 저장을 이용해주세요.');
+    return;
+  }
+
+  // PC에서는 결과 PNG를 클립보드에 복사한다.
   if(!(navigator.clipboard&&window.ClipboardItem)){
     toast('이 브라우저는 이미지 복사를 지원하지 않습니다. 결과 이미지 저장을 이용해주세요.');
     return;
   }
   try{
-    const type=sharePreparedBlob.type||'image/png';
-    const item=new ClipboardItem({[type]:sharePreparedBlob});
-    navigator.clipboard.write([item]).then(()=>{
-      toast('결과 이미지가 복사되었습니다. 이제 채팅방에 붙여넣기하세요.');
-    }).catch(e=>{
-      console.error(e);
-      toast('결과 이미지를 복사하지 못했습니다. 브라우저 권한을 확인하거나 결과 이미지 저장을 이용해주세요.');
-    });
+    const item=new ClipboardItem({'image/png':sharePreparedBlob});
+    await navigator.clipboard.write([item]);
+    toast('결과 이미지가 복사되었습니다. 이제 채팅방에 붙여넣기하세요.');
   }catch(e){
     console.error(e);
     toast('결과 이미지를 복사하지 못했습니다. 브라우저 권한을 확인하거나 결과 이미지 저장을 이용해주세요.');
