@@ -1025,36 +1025,107 @@ body{font-weight:400}
 }
 
 
-/* ===== V7 ALL BOLD preview =====
-   모든 텍스트를 KoPub 바탕 Bold(700)로 강제 적용 */
-html,body,
-h1,h2,h3,h4,h5,h6,
-p,span,small,strong,b,em,i,
-div,a,button,label,li,dt,dd,
-input,textarea,select,option,
-blockquote,cite,figcaption {
-  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
-  font-weight:700 !important;
-}
-
-input::placeholder,
-textarea::placeholder{
-  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
-  font-weight:700 !important;
-}
-
-body{
-  font-weight:700 !important;
-  text-rendering:optimizeLegibility;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-}
-
-/* 너무 작아 보이는 라벨류는 한 번 더 살짝 상향 */
+/* ===== V8 B-option: PC KoPub headline + Pretendard body/UI =====
+   Mobile keeps the V6 KoPub treatment unchanged. */
 @media (min-width:821px){
-  .navlinks,.navcta,.eyebrow,.kicker,.scene-no,.char-no,.recent-meta,.shop-name,
-  .home-meta,.count,.share-note,.chip,.sortBtn,.serial,.when,.nick,.score,.like{
-    font-size:max(1em, 15px) !important;
+
+  /* PC 기본 읽기/UI 폰트 */
+  body,
+  p, li, dd, dt,
+  button, input, textarea, select,
+  .navlinks, .navcta,
+  .btn,
+  .bridge-card .meta, .statrow, .feeditem span,
+  .rule p,
+  .scene-no,
+  .panel .tag, .price, .preview-text,
+  .shop-name, .shop-format, .shop-note,
+  .recent-note, .recent-meta, .recent-desc, .recent-comment, .recent-nick,
+  .recent-actions a,
+  .writer-notes p, .writer-notes-meta,
+  .footer {
+    font-family:"Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,
+      "Segoe UI","Noto Sans KR",sans-serif!important;
+    font-weight:500!important;
+    letter-spacing:-0.018em;
+  }
+
+  /* 작은 UI는 한 단계 더 단단하게 */
+  .navlinks, .navcta,
+  .btn,
+  .scene-no,
+  .panel .tag,
+  .shop-name,
+  .recent-meta,
+  .recent-actions a {
+    font-weight:600!important;
+  }
+
+  /* 큰 제목과 문학적/오컬트 카피는 KoPub 바탕 Bold */
+  .logo,
+  h1, h2,
+  .eyebrow,
+  .hero-copy .kicker,
+  .hero-quote,
+  .bridge-title,
+  .manifesto,
+  .rule b,
+  .scenes-showcase .scene h3,
+  .mid-buy strong,
+  .recent-type,
+  .writer-notes h2 {
+    font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!important;
+    font-weight:700!important;
+    letter-spacing:-0.035em;
+  }
+
+  /* ---- 10명 캐릭터 설명 영역 ---- */
+  #characters > .wrap > .eyebrow,
+  #characters > .wrap > h2 {
+    font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!important;
+    font-weight:700!important;
+  }
+
+  /* '14개의 상황을 지나면...' 안내문 */
+  #characters > .wrap > p {
+    font-family:"Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,
+      "Segoe UI","Noto Sans KR",sans-serif!important;
+    font-weight:500!important;
+    font-size:17px!important;
+    line-height:1.85!important;
+    color:#b8ad9f!important;
+    letter-spacing:-0.018em;
+  }
+
+  /* 캐릭터 이름 = 작품의 인물명이라 KoPub Bold 유지 */
+  #characters .char h3 {
+    font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!important;
+    font-weight:700!important;
+    letter-spacing:-0.035em;
+  }
+
+  /* 번호 / 성격유형 / 설명 = PC 가독성 좋은 Pretendard */
+  #characters .char-no,
+  #characters .char .type,
+  #characters .char p {
+    font-family:"Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,
+      "Segoe UI","Noto Sans KR",sans-serif!important;
+    letter-spacing:-0.018em;
+  }
+  #characters .char-no {
+    font-weight:600!important;
+    font-size:13px!important;
+  }
+  #characters .char .type {
+    font-weight:600!important;
+    font-size:16px!important;
+    line-height:1.5!important;
+  }
+  #characters .char p {
+    font-weight:500!important;
+    font-size:16px!important;
+    line-height:1.78!important;
+    color:#b5aa9c!important;
   }
 }
 
@@ -1147,6 +1218,8 @@ body{
   .writer-notes-card{padding:38px 12px 36px}
 }
 </style>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 </head>
 <body>
 <nav class="nav">

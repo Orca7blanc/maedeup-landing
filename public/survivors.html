@@ -106,40 +106,73 @@ body{font-weight:400}
 }
 
 
-/* ===== V7 ALL BOLD preview =====
-   모든 텍스트를 KoPub 바탕 Bold(700)로 강제 적용 */
-html,body,
-h1,h2,h3,h4,h5,h6,
-p,span,small,strong,b,em,i,
-div,a,button,label,li,dt,dd,
-input,textarea,select,option,
-blockquote,cite,figcaption {
-  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
-  font-weight:700 !important;
-}
-
-input::placeholder,
-textarea::placeholder{
-  font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif !important;
-  font-weight:700 !important;
-}
-
-body{
-  font-weight:700 !important;
-  text-rendering:optimizeLegibility;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-}
-
-/* 너무 작아 보이는 라벨류는 한 번 더 살짝 상향 */
+/* ===== V8 B-option: PC survivors typography =====
+   Mobile remains V6. */
 @media (min-width:821px){
-  .navlinks,.navcta,.eyebrow,.kicker,.scene-no,.char-no,.recent-meta,.shop-name,
-  .home-meta,.count,.share-note,.chip,.sortBtn,.serial,.when,.nick,.score,.like{
-    font-size:max(1em, 15px) !important;
+
+  body,
+  .navcta,
+  .hero p,
+  .countline,
+  .chip, .sortBtn,
+  .boardStatus,
+  .serial, .when,
+  .char, .nick,
+  .comment,
+  .score, .like,
+  .mokBtn,
+  .gate,
+  .resultPreview span,
+  .field label, .field input, .field textarea,
+  .counter, .consent,
+  .modalActions button,
+  .foot {
+    font-family:"Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,
+      "Segoe UI","Noto Sans KR",sans-serif!important;
+    font-weight:500!important;
+    letter-spacing:-0.018em;
+  }
+
+  /* UI는 600 */
+  .navcta,
+  .chip, .sortBtn,
+  .serial, .when,
+  .char, .nick,
+  .score, .like,
+  .mokBtn,
+  .field label,
+  .modalActions button {
+    font-weight:600!important;
+  }
+
+  /* 페이지 제목/결과 유형은 KoPub Bold */
+  .logo,
+  .eyebrow,
+  .hero h1,
+  .type,
+  .modal h2,
+  .resultPreview b,
+  .resultPreview strong,
+  .board-return a {
+    font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!important;
+    font-weight:700!important;
+    letter-spacing:-0.035em;
+  }
+
+  .comment {
+    font-size:18px!important;
+    line-height:1.9!important;
+    color:#c2b6a6!important;
+  }
+  .boardStatus {
+    font-size:14px!important;
+    line-height:1.75!important;
   }
 }
 
 </style>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 </head>
 <body>
 <header class="nav"><div class="wrap navin"><a class="logo" href="./index.html">매듭</a><a class="navcta" href="./test.html">K오컬트 생존유형 테스트</a></div></header>
