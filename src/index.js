@@ -35,7 +35,36 @@ export default {
   }
 };
 
+async function applyLegacyScoreFix(env){
+  // One-time cleanup for the seven early friend-test records created before
+  // the similarity formula was widened. Matching uses result type + nickname
+  // (and the original score), so other records are left untouched.
+  const pending=await env.DB.prepare(`
+    SELECT 1 AS x FROM survivors
+    WHERE status='visible' AND (
+      (result_type='행'   AND nickname='니이모를찾아서' AND score=91) OR
+      (result_type='중기' AND nickname='굴다리아저씨'   AND score=91) OR
+      (result_type='행'   AND nickname='리본매듭'       AND score=91) OR
+      (result_type='신기' AND nickname='무명'           AND score=90 AND comment LIKE '너무 흥미진진하게%') OR
+      (result_type='도경' AND nickname='귀가길'         AND score=90) OR
+      (result_type='도경' AND nickname='2등인가??'      AND score=91) OR
+      (result_type='은황' AND nickname='최초의 생존자'  AND score=90)
+    ) LIMIT 1
+  `).first();
+  if(!pending) return;
+  await env.DB.batch([
+    env.DB.prepare("UPDATE survivors SET score=81 WHERE status='visible' AND result_type='행' AND nickname='니이모를찾아서' AND score=91"),
+    env.DB.prepare("UPDATE survivors SET score=78 WHERE status='visible' AND result_type='중기' AND nickname='굴다리아저씨' AND score=91"),
+    env.DB.prepare("UPDATE survivors SET score=88 WHERE status='visible' AND result_type='행' AND nickname='리본매듭' AND score=91"),
+    env.DB.prepare("UPDATE survivors SET score=74 WHERE status='visible' AND result_type='신기' AND nickname='무명' AND score=90 AND comment LIKE '너무 흥미진진하게%'"),
+    env.DB.prepare("UPDATE survivors SET score=85 WHERE status='visible' AND result_type='도경' AND nickname='귀가길' AND score=90"),
+    env.DB.prepare("UPDATE survivors SET score=82 WHERE status='visible' AND result_type='도경' AND nickname='2등인가??' AND score=91"),
+    env.DB.prepare("UPDATE survivors SET score=76 WHERE status='visible' AND result_type='은황' AND nickname='최초의 생존자' AND score=90")
+  ]);
+}
+
 async function listSurvivors(url, env){
+  await applyLegacyScoreFix(env);
   const type = cleanText(url.searchParams.get('type'),20);
   const sort = url.searchParams.get('sort') === 'popular' ? 'popular' : 'latest';
   const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit')||30)));
