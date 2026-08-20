@@ -661,7 +661,31 @@ function rebuildAxes(){axisRaw={Q:0,P:0,A:0,G:0,D:0,F:0,E:0};chosen.forEach((oi,
 function pick(i){chosen[idx]=i;rebuildAxes();if(idx<13){idx++;question()}else analyze()}
 function prev(){if(idx>0){idx--;chosen=chosen.slice(0,idx);rebuildAxes();question()}}
 function analyze(){app.innerHTML=`<main class="screen analysis"><div class="pulse"></div><div class="eyebrow">문턱을 넘었습니다</div><h2 id="anText">선택을 확인하고 있습니다.</h2><p class="sub">잠시 뒤 당신의 생존 방식이 드러납니다.</p></main>`;setTimeout(()=>{document.getElementById("anText").textContent="살아남는 방식에는 저마다 다른 매듭이 있습니다."},700);setTimeout(showResult,1450)}
-function calcCharacters(){let raw={};Object.keys(D.profiles).forEach(c=>raw[c]=0);chosen.forEach((oi,qi)=>{const a=D.questions[qi].answers[oi];raw[a.primary]+=3;raw[a.secondary]+=1});let z={};Object.keys(raw).forEach(c=>z[c]=(raw[c]-D.scoreMeans[c])/D.scoreSds[c]);const ranked=Object.keys(z).map(c=>({name:c,z:z[c],raw:raw[c]})).sort((a,b)=>b.z-a.z);const topZ=ranked[0].z,gap12=Math.max(0,topZ-ranked[1].z),gap23=Math.max(0,ranked[1].z-ranked[2].z);ranked[0].sim=Math.max(82,Math.min(92,84+Math.round(Math.tanh(Math.max(0,topZ))*7)));ranked[1].sim=Math.max(60,Math.min(78,ranked[0].sim-10-Math.round(gap12*5)));ranked[2].sim=Math.max(48,Math.min(70,ranked[1].sim-7-Math.round(gap23*4)));for(let i=3;i<ranked.length;i++)ranked[i].sim=Math.max(35,ranked[2].sim-(i-2)*5);return ranked}
+function calcCharacters(){
+  let raw={};
+  Object.keys(D.profiles).forEach(c=>raw[c]=0);
+  chosen.forEach((oi,qi)=>{
+    const a=D.questions[qi].answers[oi];
+    raw[a.primary]+=3;
+    raw[a.secondary]+=1;
+  });
+  let z={};
+  Object.keys(raw).forEach(c=>z[c]=(raw[c]-D.scoreMeans[c])/D.scoreSds[c]);
+  const ranked=Object.keys(z).map(c=>({name:c,z:z[c],raw:raw[c]})).sort((a,b)=>b.z-a.z);
+  const topZ=ranked[0].z;
+  const gap12=Math.max(0,topZ-ranked[1].z);
+  const gap23=Math.max(0,ranked[1].z-ranked[2].z);
+
+  // v2 similarity: absolute fit + how clearly 1st place beats 2nd place.
+  // Typical results spread through the high-70s to low-90s instead of clustering at 90-91%.
+  const absoluteFit=Math.max(0,Math.min(10,(topZ+0.25)*3.5));
+  const separation=Math.max(0,Math.min(12,gap12*6));
+  ranked[0].sim=Math.round(Math.max(70,Math.min(96,74+absoluteFit+separation)));
+  ranked[1].sim=Math.round(Math.max(55,Math.min(86,ranked[0].sim-7-gap12*7)));
+  ranked[2].sim=Math.round(Math.max(45,Math.min(78,ranked[1].sim-6-gap23*5)));
+  for(let i=3;i<ranked.length;i++) ranked[i].sim=Math.max(30,ranked[2].sim-(i-2)*5);
+  return ranked;
+}
 function calcAxes(){const out={};Object.keys(D.axisNames).forEach(k=>{const r=axisRaw[k]/D.axisMax[k];out[k]=Math.max(0,Math.min(100,Math.round(100*Math.sqrt(r))))});return out}
 function showResult(){const ranks=calcCharacters(),top=ranks[0],p=D.profiles[top.name],axes=calcAxes();const axisRows=Object.keys(D.axisNames).map(k=>`<div class="barRow"><span>${D.axisNames[k]}</span><div class="bar"><i style="width:${axes[k]}%"></i></div><strong>${axes[k]}</strong></div>`).join("");const strengths=p.strength.map(x=>`<li>${esc(x)}</li>`).join("");const risks=p.risk.map(x=>`<li>${esc(x)}</li>`).join("");const media=p.image?`<div class="sheetWrap"><img class="sheetImage" src="${p.image}" alt="${esc(top.name)} 결과 장면"></div>`:`<div class="avatar">${esc(top.name.slice(-1))}</div>`;app.innerHTML=`<main class="screen result"><section class="heroResult"><div class="typeLabel">당신의 K-오컬트 생존유형</div><div class="typeTitle">${(p.titleLines||[p.title]).map(x=>`<span class="line">${esc(x)}</span>`).join("")}</div><div class="quote">“${esc(p.quote)}”</div></section><section class="reveal">${media}<div class="eyebrow">당신과 가장 닮은 인물</div><div class="name">${esc(top.name)}</div><div class="book">K-오컬트 소설 《매듭 문지방을 넘어온 것들》</div><div class="sim">유사도 <strong>${top.sim}%</strong></div></section><section class="section"><h3>당신의 생존 성향</h3>${axisRows}</section><section class="section analysisText"><h3>당신은 이런 사람입니다</h3>${(p.descParas||[p.desc]).map(t=>`<p>${esc(t)}</p>`).join("")}</section><section class="section"><div class="cards"><div class="smallCard"><b>강한 상황</b><ul class="list">${strengths}</ul></div><div class="smallCard"><b>위험한 순간</b><ul class="list">${risks}</ul></div></div></section><section class="section"><h3>당신 안의 다른 생존자</h3>${ranks.slice(1,3).map((r,i)=>`<div class="smallCard rank"><div><b>${i+2}위 · ${esc(r.name)}</b><small>${esc(D.profiles[r.name].title)}</small></div><span>${r.sim}%</span></div>`).join("")}</section><section class="section actions"><button type="button" class="shareBtn" onclick="openBoardShare()">생존자 기록 남기기</button><button type="button" class="ghost" id="downloadResultBtn" onclick="downloadCard()">결과 이미지 저장</button><button type="button" class="ghost" id="shareResultBtn" onclick="shareResultImage()">친구에게 결과 공유하기</button><button type="button" class="ghost" onclick="shareTest()">친구에게 테스트 보내기</button><button type="button" class="ghost" onclick="start()">다시 테스트하기</button><div class="share-note" id="shareReadyNote">결과 이미지는 필요할 때 자동으로 준비됩니다.</div></section><section class="section bookCta"><div class="eyebrow">그런데 ${esc(top.name)}${topicParticle(top.name)} 누구일까요?</div><h3>소설 《매듭 문지방을 넘어온 것들》</h3><p>귀신과 요괴가 현실의 틈으로 스며드는 한국. 그 세계에서 살아가는 사람들의 이야기.</p><button class="ghost" onclick="goToWorld()">${esc(p.worldCta||"《매듭》 세계 보기")}</button></section></main>`;window.__result={ranks,top,p,axes};saveResultSession();resetShareAssets();setTimeout(()=>{prepareShareAssets().catch(()=>{})},0);window.scrollTo(0,0)}
 function toast(message){
