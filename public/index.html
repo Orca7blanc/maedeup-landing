@@ -670,6 +670,9 @@ html,body,button{font-family:"KoPubWorld Batang","KoPub Batang",Batang,serif!imp
 .recent-note{font-size:11px;color:#776f65;line-height:1.6;max-width:340px;text-align:right}
 .recent-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .recent-card{min-height:116px;padding:18px 18px 16px;border:1px solid rgba(198,164,103,.13);border-radius:16px;background:linear-gradient(145deg,rgba(84,34,23,.055),rgba(255,255,255,.012));display:flex;flex-direction:column;justify-content:space-between}
+.recent-card-link{color:inherit;text-decoration:none;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.recent-card-link:hover{border-color:rgba(198,164,103,.30);background:linear-gradient(145deg,rgba(84,34,23,.10),rgba(255,255,255,.018));transform:translateY(-1px)}
+.recent-card-link:focus-visible{outline:2px solid rgba(198,164,103,.55);outline-offset:3px}
 .recent-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;color:#756d63;font-size:10px;letter-spacing:.04em}
 .recent-type{font-size:21px;color:#e2d5c3;margin-top:16px;letter-spacing:-.03em}
 .recent-desc{font-size:12px;color:#a99d8c;margin-top:6px;line-height:1.6}
@@ -1351,7 +1354,7 @@ button,.navlinks,.navcta,.cta,.btn{font-weight:650}
 <div class="recent-note">테스트 결과를 남기면 가장 최근 생존 기록이 이곳에 표시됩니다.</div>
 </div>
 <div class="recent-list" id="recentList"></div>
-<div class="recent-actions"><a href="./survivors.html" onclick="track('recent_board_open')">최근 결과 모두 보기 →</a></div>
+<div class="recent-actions"><a href="./survivors.html" onclick="track('recent_board_open')">전체 생존자 기록 보기 →</a></div>
 </div>
 </div>
 </section>
@@ -1548,13 +1551,13 @@ setupPager('characterRail','characterPager','.char');
         list.innerHTML='<article class="recent-card"><div class="recent-type">첫 생존 기록을 기다리고 있습니다.</div><div class="recent-desc">테스트를 완료한 뒤 당신의 결과를 남길 수 있습니다.</div></article>';
         return;
       }
-      list.innerHTML=rows.map((x,i)=>`<article class="recent-card">
+      list.innerHTML=rows.map((x,i)=>`<a class="recent-card recent-card-link" href="./survivors.html" onclick="track('recent_card_open')" aria-label="${esc(x.result_type)} 생존 기록 전체 게시판에서 보기">
         <div class="recent-meta"><span>${formatWhen(x.created_at)}</span><span>${String(i+1).padStart(2,'0')}</span></div>
         <div><div class="recent-type">${esc(x.result_type)}${x.score!=null?` · ${x.score}%`:''}</div>
         <div class="recent-desc">${esc(x.result_title||'생존자')}</div>
         ${x.comment?`<div class="recent-comment">“${esc(x.comment)}”</div>`:''}
         ${x.nickname?`<div class="recent-nick">${esc(x.nickname)}</div>`:''}</div>
-      </article>`).join('');
+      </a>`).join('');
     }catch(e){
       list.innerHTML='<article class="recent-card"><div class="recent-desc">게시판 연결을 확인하고 있습니다.</div></article>';
     }
