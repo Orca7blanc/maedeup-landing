@@ -13,6 +13,7 @@
       "/seed",
       "/seed/*",
       "/episode/*",
+      "/assets/*",
       "/_next/*",
       "/_vinext/*",
       "/seed-title-logo.png",
