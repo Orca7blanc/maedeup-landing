@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://maedeup-landing.orca7blanc.workers.dev/sitemap.xml
