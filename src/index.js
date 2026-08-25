@@ -19,6 +19,14 @@ function validClient(v){return /^[A-Za-z0-9._|:-]{6,220}$/.test(String(v||""))}
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/google1ff58ef5011b84c8.html') {
+      return new Response('google-site-verification: google1ff58ef5011b84c8.html\n', {
+        headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'public, max-age=300'
+        }
+      });
+    }
     if (url.pathname.startsWith('/api/')) {
       if (!env.DB) return json({error:'DB binding is not connected yet.'},503);
       try {
