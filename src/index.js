@@ -12,7 +12,9 @@ const TITLES = {
 };
 const TYPES = new Set(Object.keys(TITLES));
 
-const SEED_URL = 'https://seed-serial.totorolhj.chatgpt.site';
+const SEED_URL = 'https://maedeup-landing.orca7blanc.workers.dev/seed';
+const SEED_LOGO_URL = 'https://maedeup-landing.orca7blanc.workers.dev/seed-title-logo.png';
+const SEED_ORIGIN = 'https://seed-serial.totorolhj.chatgpt.site';
 const SEED_PROMO_STYLE = `<style id="seed-serial-promo">
 .seed-nav-link{display:inline-flex!important;align-items:center;gap:7px;color:#b9c3a3!important}.seed-nav-link:before{content:"";width:6px;height:6px;border-radius:50%;background:#91a96f;box-shadow:0 0 12px rgba(145,169,111,.65)}
 .seed-feature{padding-top:28px!important;padding-bottom:108px!important}.seed-card{position:relative;display:grid;grid-template-columns:minmax(220px,.78fr) minmax(0,1fr);align-items:center;gap:clamp(34px,6vw,78px);max-width:980px;margin:0 auto;padding:clamp(40px,5vw,64px);overflow:hidden;color:#d8d0c4;border:1px solid rgba(164,183,133,.19);border-radius:26px;background:radial-gradient(75% 120% at 10% 50%,rgba(91,111,74,.15),transparent 68%),linear-gradient(135deg,rgba(19,22,19,.94),rgba(10,10,9,.98));box-shadow:0 30px 90px rgba(0,0,0,.26);transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease}.seed-card:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.025),transparent 65%)}.seed-card:hover{transform:translateY(-3px);border-color:rgba(164,183,133,.36);box-shadow:0 36px 100px rgba(0,0,0,.36)}
@@ -21,7 +23,7 @@ const SEED_PROMO_STYLE = `<style id="seed-serial-promo">
 @media(prefers-reduced-motion:reduce){.seed-card,.seed-link span{transition:none!important}}
 </style>`;
 const SEED_NAV_LINK = `<a class="seed-nav-link" href="${SEED_URL}" target="_blank" rel="noopener noreferrer" onclick="track('seed_nav_open')">SeeD 연재중</a>`;
-const SEED_PROMO_CARD = `<section class="section seed-feature" id="seed-serial"><div class="wrap reveal is-in"><a class="seed-card" href="${SEED_URL}" target="_blank" rel="noopener noreferrer" onclick="track('seed_serial_open')" aria-label="연재소설 SeeD 보러 가기"><div class="seed-logo-wrap"><img src="${SEED_URL}/seed-title-logo.png" alt="SeeD" loading="lazy"/></div><div class="seed-copy"><div class="seed-kicker"><span class="seed-status">연재중</span><span>ANOTHER STORY BY LEE JA-WOON</span></div><h2>이자운의 또 다른 이야기</h2><p>멸망 이후의 세계를 기록하는 연재소설.</p><span class="seed-link">SeeD 연재 보러 가기 <span aria-hidden="true">→</span></span></div></a></div></section>`;
+const SEED_PROMO_CARD = `<section class="section seed-feature" id="seed-serial"><div class="wrap reveal is-in"><a class="seed-card" href="${SEED_URL}" target="_blank" rel="noopener noreferrer" onclick="track('seed_serial_open')" aria-label="연재소설 SeeD 보러 가기"><div class="seed-logo-wrap"><img src="${SEED_LOGO_URL}" alt="SeeD" loading="lazy"/></div><div class="seed-copy"><div class="seed-kicker"><span class="seed-status">연재중</span><span>ANOTHER STORY BY LEE JA-WOON</span></div><h2>이자운의 또 다른 이야기</h2><p>멸망 이후의 세계를 기록하는 연재소설.</p><span class="seed-link">SeeD 연재 보러 가기 <span aria-hidden="true">→</span></span></div></a></div></section>`;
 
 function json(data,status=200){return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}})}
 function cleanText(v,max){return String(v??"").replace(/[\u0000-\u001F\u007F]/g," ").trim().slice(0,max)}
@@ -30,6 +32,9 @@ function validClient(v){return /^[A-Za-z0-9._|:-]{6,220}$/.test(String(v||""))}
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (isSeedRequest(url.pathname)) {
+      return proxySeed(request, url);
+    }
     if (url.pathname === '/google1ff58ef5011b84c8.html') {
       return new Response('google-site-verification: google1ff58ef5011b84c8.html\n', {
         headers: {
@@ -65,6 +70,32 @@ export default {
     return assetResponse;
   }
 };
+
+function isSeedRequest(pathname){
+  return pathname === '/seed' ||
+    pathname === '/seed/' ||
+    pathname.startsWith('/episode/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/_vinext/') ||
+    pathname === '/seed-title-logo.png' ||
+    pathname === '/og.png' ||
+    pathname === '/favicon.svg';
+}
+
+async function proxySeed(request, url){
+  const upstreamUrl = new URL(`${url.pathname}${url.search}`, SEED_ORIGIN);
+  const upstreamResponse = await fetch(new Request(upstreamUrl, request), {redirect:'manual'});
+  const headers = new Headers(upstreamResponse.headers);
+  const location = headers.get('location');
+  if(location?.startsWith(SEED_ORIGIN)){
+    headers.set('location', location.replace(SEED_ORIGIN, new URL(request.url).origin));
+  }
+  return new Response(upstreamResponse.body, {
+    status: upstreamResponse.status,
+    statusText: upstreamResponse.statusText,
+    headers
+  });
+}
 
 function addSeedSerialPromo(response){
   return new HTMLRewriter()
