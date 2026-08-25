@@ -75,6 +75,7 @@ function isSeedRequest(pathname){
   return pathname === '/seed' ||
     pathname === '/seed/' ||
     pathname.startsWith('/episode/') ||
+    pathname.startsWith('/assets/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/_vinext/') ||
     pathname === '/seed-title-logo.png' ||
