@@ -8,6 +8,8 @@
     "directory": "./public",
     "binding": "ASSETS",
     "run_worker_first": [
+      "/",
+      "/index.html",
       "/api/*",
       "/google1ff58ef5011b84c8.html",
       "/naver79299a37055c37ed312f92ef0e472ee2.html"
