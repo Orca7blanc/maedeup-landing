@@ -8,7 +8,8 @@
     "directory": "./public",
     "binding": "ASSETS",
     "run_worker_first": [
-      "/api/*"
+      "/api/*",
+      "/google1ff58ef5011b84c8.html"
     ]
   },
 
