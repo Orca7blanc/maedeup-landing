@@ -27,6 +27,14 @@ export default {
         }
       });
     }
+    if (url.pathname === '/naver79299a37055c37ed312f92ef0e472ee2.html') {
+      return new Response('naver-site-verification: naver79299a37055c37ed312f92ef0e472ee2.html\n', {
+        headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'public, max-age=300'
+        }
+      });
+    }
     if (url.pathname.startsWith('/api/')) {
       if (!env.DB) return json({error:'DB binding is not connected yet.'},503);
       try {
