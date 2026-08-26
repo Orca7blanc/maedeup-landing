@@ -24,6 +24,7 @@ const SEED_PROMO_STYLE = `<style id="seed-serial-promo">
 </style>`;
 const SEED_NAV_LINK = `<a class="seed-nav-link" href="${SEED_URL}" target="_blank" rel="noopener noreferrer" onclick="track('seed_nav_open')">SeeD 연재중</a>`;
 const SEED_PROMO_CARD = `<section class="section seed-feature" id="seed-serial"><div class="wrap reveal is-in"><a class="seed-card" href="${SEED_URL}" target="_blank" rel="noopener noreferrer" onclick="track('seed_serial_open')" aria-label="연재소설 SeeD 보러 가기"><div class="seed-logo-wrap"><img src="${SEED_LOGO_URL}" alt="SeeD" loading="lazy"/></div><div class="seed-copy"><div class="seed-kicker"><span class="seed-status">연재중</span><span>ANOTHER STORY BY LEE JA-WOON</span></div><h2>이자운의 또 다른 이야기</h2><p>멸망 이후의 세계를 기록하는 연재소설.</p><span class="seed-link">SeeD 연재 보러 가기 <span aria-hidden="true">→</span></span></div></a></div></section>`;
+const ANALYTICS_SCRIPT = `<script id="seed-anonymous-analytics">(()=>{if(navigator.doNotTrack==='1')return;const endpoint='/seed-api/analytics',visitorKey='seed_analytics_visitor',sessionKey='seed_analytics_session';let pageOpenedAt=Date.now(),lastVisibleAt=document.visibilityState==='visible'?Date.now():0;function id(){return crypto.randomUUID()}function visitor(){try{let value=localStorage.getItem(visitorKey);if(!value){value=id();localStorage.setItem(visitorKey,value)}return value}catch{return id()}}function session(){const now=Date.now();try{const old=JSON.parse(sessionStorage.getItem(sessionKey)||'null');if(old&&old.id&&old.touched&&now-old.touched<1800000){sessionStorage.setItem(sessionKey,JSON.stringify({id:old.id,touched:now}));return old.id}const value=id();sessionStorage.setItem(sessionKey,JSON.stringify({id:value,touched:now}));return value}catch{return id()}}function device(){return matchMedia('(max-width:600px)').matches?'mobile':matchMedia('(max-width:1000px)').matches?'tablet':'desktop'}function referrer(){try{return document.referrer?new URL(document.referrer).hostname:''}catch{return''}}function send(eventType,target,durationMs,beacon){const payload=JSON.stringify({events:[{visitorId:visitor(),sessionId:session(),eventType,path:location.pathname,target:target||'',durationMs:durationMs||0,device:device(),referrerHost:referrer(),occurredAt:Date.now()}]});if(beacon&&navigator.sendBeacon){navigator.sendBeacon(endpoint,new Blob([payload],{type:'application/json'}));return}fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(()=>{})}window.track=function(name){send('click',String(name||'button').slice(0,100),Date.now()-pageOpenedAt,false)};send('page_view','',0,false);function flush(beacon){if(!lastVisibleAt)return;const now=Date.now(),duration=Math.min(60000,Math.max(0,now-lastVisibleAt));lastVisibleAt=document.visibilityState==='visible'?now:0;if(duration>=1000)send('engaged_time','',duration,beacon)}setInterval(()=>flush(false),15000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush(true);else lastVisibleAt=Date.now()});addEventListener('pagehide',()=>flush(true));document.addEventListener('click',event=>{const el=event.target&&event.target.closest?event.target.closest('a,button,[data-track]'):null;if(!el||el.closest('[data-no-track]')||(el.getAttribute('onclick')||'').includes('track('))return;const target=el.dataset.track||el.getAttribute('aria-label')||(el.textContent||'').replace(/\s+/g,' ').trim().slice(0,100)||el.tagName.toLowerCase();send('click',target,Date.now()-pageOpenedAt,false)})})();</script>`;
 
 function json(data,status=200){return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}})}
 function cleanText(v,max){return String(v??"").replace(/[\u0000-\u001F\u007F]/g," ").trim().slice(0,max)}
@@ -32,6 +33,9 @@ function validClient(v){return /^[A-Za-z0-9._|:-]{6,220}$/.test(String(v||""))}
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname.startsWith('/seed-api/')) {
+      return proxySeedApi(request, url);
+    }
     if (isSeedRequest(url.pathname)) {
       return proxySeed(request, url);
     }
@@ -64,8 +68,13 @@ export default {
       }
     }
     const assetResponse = await env.ASSETS.fetch(request);
-    if ((url.pathname === '/' || url.pathname === '/index.html') && assetResponse.headers.get('content-type')?.includes('text/html')) {
-      return addSeedSerialPromo(assetResponse);
+    if (assetResponse.headers.get('content-type')?.includes('text/html')) {
+      if (url.pathname === '/' || url.pathname === '/index.html') {
+        return addSeedSerialPromo(assetResponse);
+      }
+      if (url.pathname === '/preview' || url.pathname === '/preview.html') {
+        return addAnonymousAnalytics(assetResponse);
+      }
     }
     return assetResponse;
   }
@@ -73,7 +82,7 @@ export default {
 
 function isSeedRequest(pathname){
   return pathname === '/seed' ||
-    pathname === '/seed/' ||
+    pathname.startsWith('/seed/') ||
     pathname.startsWith('/episode/') ||
     pathname.startsWith('/assets/') ||
     pathname.startsWith('/_next/') ||
@@ -81,6 +90,20 @@ function isSeedRequest(pathname){
     pathname === '/seed-title-logo.png' ||
     pathname === '/og.png' ||
     pathname === '/favicon.svg';
+}
+
+async function proxySeedApi(request, url){
+  const upstreamPath = url.pathname.replace(/^\/seed-api/, '/api');
+  const upstreamUrl = new URL(`${upstreamPath}${url.search}`, SEED_ORIGIN);
+  const headers = new Headers(request.headers);
+  headers.delete('host');
+  const upstreamRequest = new Request(upstreamUrl, {
+    method: request.method,
+    headers,
+    body: request.method === 'GET' || request.method === 'HEAD' ? undefined : request.body,
+    redirect: 'manual'
+  });
+  return fetch(upstreamRequest);
 }
 
 async function proxySeed(request, url){
@@ -103,6 +126,13 @@ function addSeedSerialPromo(response){
     .on('head',{element(element){element.append(SEED_PROMO_STYLE,{html:true})}})
     .on('.navlinks',{element(element){element.append(SEED_NAV_LINK,{html:true})}})
     .on('footer.footer',{element(element){element.before(SEED_PROMO_CARD,{html:true})}})
+    .on('body',{element(element){element.append(ANALYTICS_SCRIPT,{html:true})}})
+    .transform(response);
+}
+
+function addAnonymousAnalytics(response){
+  return new HTMLRewriter()
+    .on('body',{element(element){element.append(ANALYTICS_SCRIPT,{html:true})}})
     .transform(response);
 }
 
