@@ -25,6 +25,29 @@ const SEED_PROMO_STYLE = `<style id="seed-serial-promo">
 const SEED_NAV_LINK = `<a class="seed-nav-link" href="${SEED_URL}" target="_blank" rel="noopener noreferrer" onclick="track('seed_nav_open')">SeeD 연재중</a>`;
 const SEED_PROMO_CARD = `<section class="section seed-feature" id="seed-serial"><div class="wrap reveal is-in"><a class="seed-card" href="${SEED_URL}" target="_blank" rel="noopener noreferrer" onclick="track('seed_serial_open')" aria-label="연재소설 SeeD 보러 가기"><div class="seed-logo-wrap"><img src="${SEED_LOGO_URL}" alt="SeeD" loading="lazy"/></div><div class="seed-copy"><div class="seed-kicker"><span class="seed-status">연재중</span><span>ANOTHER STORY BY LEE JA-WOON</span></div><h2>이자운의 또 다른 이야기</h2><p>멸망 이후의 세계를 기록하는 연재소설.</p><span class="seed-link">SeeD 연재 보러 가기 <span aria-hidden="true">→</span></span></div></a></div></section>`;
 const ANALYTICS_SCRIPT = `<script id="seed-anonymous-analytics">(()=>{if(navigator.doNotTrack==='1')return;const endpoint='/seed-api/analytics',visitorKey='seed_analytics_visitor',sessionKey='seed_analytics_session';let pageOpenedAt=Date.now(),lastVisibleAt=document.visibilityState==='visible'?Date.now():0;function id(){return crypto.randomUUID()}function visitor(){try{let value=localStorage.getItem(visitorKey);if(!value){value=id();localStorage.setItem(visitorKey,value)}return value}catch{return id()}}function session(){const now=Date.now();try{const old=JSON.parse(sessionStorage.getItem(sessionKey)||'null');if(old&&old.id&&old.touched&&now-old.touched<1800000){sessionStorage.setItem(sessionKey,JSON.stringify({id:old.id,touched:now}));return old.id}const value=id();sessionStorage.setItem(sessionKey,JSON.stringify({id:value,touched:now}));return value}catch{return id()}}function device(){return matchMedia('(max-width:600px)').matches?'mobile':matchMedia('(max-width:1000px)').matches?'tablet':'desktop'}function referrer(){try{return document.referrer?new URL(document.referrer).hostname:''}catch{return''}}function send(eventType,target,durationMs,beacon){const payload=JSON.stringify({events:[{visitorId:visitor(),sessionId:session(),eventType,path:location.pathname,target:target||'',durationMs:durationMs||0,device:device(),referrerHost:referrer(),occurredAt:Date.now()}]});if(beacon&&navigator.sendBeacon){navigator.sendBeacon(endpoint,new Blob([payload],{type:'application/json'}));return}fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(()=>{})}window.track=function(name){send('click',String(name||'button').slice(0,100),Date.now()-pageOpenedAt,false)};send('page_view','',0,false);function flush(beacon){if(!lastVisibleAt)return;const now=Date.now(),duration=Math.min(60000,Math.max(0,now-lastVisibleAt));lastVisibleAt=document.visibilityState==='visible'?now:0;if(duration>=1000)send('engaged_time','',duration,beacon)}setInterval(()=>flush(false),15000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush(true);else lastVisibleAt=Date.now()});addEventListener('pagehide',()=>flush(true));document.addEventListener('click',event=>{const el=event.target&&event.target.closest?event.target.closest('a,button,[data-track]'):null;if(!el||el.closest('[data-no-track]')||(el.getAttribute('onclick')||'').includes('track('))return;const target=el.dataset.track||el.getAttribute('aria-label')||(el.textContent||'').replace(/\s+/g,' ').trim().slice(0,100)||el.tagName.toLowerCase();send('click',target,Date.now()-pageOpenedAt,false)})})();</script>`;
+const MAEDEUP_SEO_TITLE = '《매듭》 공식 사이트 | 이자운 K-오컬트 장편소설';
+const MAEDEUP_SEO_DESCRIPTION = '《문지방을 넘어온 것들》로 시작되는 이자운의 K-오컬트 장편소설 《매듭》 공식 사이트. 작품 소개, 1권 미리보기와 생존유형 테스트를 만나보세요.';
+const MAEDEUP_URL = 'https://maedeup-landing.orca7blanc.workers.dev/';
+const MAEDEUP_SEO_HEAD = `<link rel="canonical" href="${MAEDEUP_URL}"/>
+<meta property="og:type" content="website"/>
+<meta property="og:locale" content="ko_KR"/>
+<meta property="og:site_name" content="《매듭》 공식 사이트"/>
+<meta property="og:title" content="${MAEDEUP_SEO_TITLE}"/>
+<meta property="og:description" content="${MAEDEUP_SEO_DESCRIPTION}"/>
+<meta property="og:url" content="${MAEDEUP_URL}"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="${MAEDEUP_SEO_TITLE}"/>
+<meta name="twitter:description" content="${MAEDEUP_SEO_DESCRIPTION}"/>
+<script type="application/ld+json">${JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: '《매듭》 공식 사이트',
+  alternateName: '매듭',
+  url: MAEDEUP_URL,
+  description: MAEDEUP_SEO_DESCRIPTION,
+  inLanguage: 'ko-KR',
+  author: {'@type': 'Person', name: '이자운'}
+})}</script>`;
 
 function json(data,status=200){return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}})}
 function cleanText(v,max){return String(v??"").replace(/[\u0000-\u001F\u007F]/g," ").trim().slice(0,max)}
@@ -123,7 +146,12 @@ async function proxySeed(request, url){
 
 function addSeedSerialPromo(response){
   return new HTMLRewriter()
-    .on('head',{element(element){element.append(SEED_PROMO_STYLE,{html:true})}})
+    .on('title',{element(element){element.setInnerContent(MAEDEUP_SEO_TITLE)}})
+    .on('meta[name="description"]',{element(element){element.setAttribute('content',MAEDEUP_SEO_DESCRIPTION)}})
+    .on('head',{element(element){
+      element.append(MAEDEUP_SEO_HEAD,{html:true});
+      element.append(SEED_PROMO_STYLE,{html:true});
+    }})
     .on('.navlinks',{element(element){element.append(SEED_NAV_LINK,{html:true})}})
     .on('footer.footer',{element(element){element.before(SEED_PROMO_CARD,{html:true})}})
     .on('body',{element(element){element.append(ANALYTICS_SCRIPT,{html:true})}})
