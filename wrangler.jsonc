@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "maedeup-landing",
-  "main": "src/index.js",
+  "main": "src/seed-scene-break-wrapper.js",
   "compatibility_date": "2026-08-18",
 
   "assets": {
