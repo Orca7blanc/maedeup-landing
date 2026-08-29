@@ -2,7 +2,17 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "maedeup-landing",
   "main": "src/seed-scene-break-wrapper.js",
-  "compatibility_date": "2026-08-18",
+  "compatibility_date": "2026-08-29",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "vars": {
+    "SOCIAL_AUTOMATION_ENABLED": "false",
+    "SOCIAL_NOTION_DATA_SOURCE_ID": "c6f33305-fd39-43dc-9d27-37b073388be5"
+  },
+
+  "triggers": {
+    "crons": ["* * * * *"]
+  },
 
   "assets": {
     "directory": "./public",

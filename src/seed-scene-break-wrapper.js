@@ -98,5 +98,10 @@ export default {
     const url=new URL(request.url);
     if(!isSeedHtmlPath(url.pathname)) return response;
     return addSceneBreakCentering(response);
+  },
+  async scheduled(controller,env,ctx){
+    if(typeof app.scheduled==='function'){
+      await app.scheduled(controller,env,ctx);
+    }
   }
 };

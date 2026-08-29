@@ -1,3 +1,5 @@
+import {handleSocialHealth, processApprovedSocialPosts} from './social-publisher.js';
+
 const TITLES = {
   "자별":"판을 다시 짜는 생존자",
   "행":"끝없이 파고드는 탐구자",
@@ -56,6 +58,9 @@ function validClient(v){return /^[A-Za-z0-9._|:-]{6,220}$/.test(String(v||""))}
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/social/health' && request.method === 'GET') {
+      return handleSocialHealth(env);
+    }
     if (url.pathname.startsWith('/seed-api/')) {
       return proxySeedApi(request, url);
     }
@@ -100,6 +105,9 @@ export default {
       }
     }
     return assetResponse;
+  },
+  async scheduled(_controller, env) {
+    await processApprovedSocialPosts(env);
   }
 };
 
