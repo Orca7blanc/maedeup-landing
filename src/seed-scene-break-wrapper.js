@@ -1,4 +1,5 @@
 import app from './index.js';
+import {addReaderReviews,shouldAddReaderReviews} from './reader-reviews.js';
 
 const SCENE_BREAK_STYLE = `<style id="seed-scene-break-style">
 .seed-scene-break{
@@ -94,10 +95,18 @@ function addSceneBreakCentering(response){
 
 export default {
   async fetch(request,env,ctx){
-    const response=await app.fetch(request,env,ctx);
+    let response=await app.fetch(request,env,ctx);
     const url=new URL(request.url);
-    if(!isSeedHtmlPath(url.pathname)) return response;
-    return addSceneBreakCentering(response);
+
+    if(shouldAddReaderReviews(request,response)){
+      response=addReaderReviews(response);
+    }
+
+    if(isSeedHtmlPath(url.pathname)){
+      response=addSceneBreakCentering(response);
+    }
+
+    return response;
   },
   async scheduled(controller,env,ctx){
     if(typeof app.scheduled==='function'){
