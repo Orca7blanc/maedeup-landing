@@ -61,11 +61,11 @@ const KYOBO = 'https://ebook-product.kyobobook.co.kr/dig/epd/ebook/';
 const REVIEWS = [
   {id:'kyobo-mi',author:'mi (마스킹 ID)',platform:'교보문고',volume:1,badge:'구매자 후기',date:'2026.07.28',quote:'첫 장부터 빨려들어갑니다.',url:KYOBO+'E000013298635',image:'kyobo-mi-book1-20260922.webp',width:816,height:127},
   {id:'ridi-tot',author:'tot***',platform:'리디',volume:3,badge:'구매자 후기',date:'2026.07.25',quote:'작가는 디테일과 장난질에 미쳐 있습니다.',context:'한 번 읽는 것보다 두 번째, 세 번째 읽을 때 더 많은 게 보입니다.',url:'https://ridibooks.com/books/5273014883',image:'ridi-book3-excerpt-20260922.webp',width:889,height:72},
+  {id:'kyobo-ls',author:'ls (마스킹 ID)',platform:'교보문고',volume:2,badge:'독자 후기',date:'2026.07.17',topic:'다음 권을 펼치게 하는 힘',quote:'뒷내용 궁금해서 참을 수 없음!! 1권읽고 바로 2권 읽었음!!',url:KYOBO+'E000013298720',image:'kyobo-ls-book2-20260922.webp',width:814,height:107},
+  {id:'kyobo-yo',author:'yo (마스킹 ID)',platform:'교보문고',volume:2,badge:'구매자 후기',date:'2026.08.13',topic:'시간을 잊게 하는 몰입감',quote:'몰입감있는 글에 시간가는줄 모르고 내리 읽었네요',url:KYOBO+'E000013298720',image:'kyobo-yo-book2-20260928.webp',width:814,height:145},
   {id:'yes24-tj',author:'t…j (마스킹 ID)',platform:'YES24',volume:2,badge:'구매자 후기',date:'2026.09.15',topic:'손에 땀이 나는 긴장감',quote:'손에 땀이 나서 책장에 손자국도 났다.',context:'특히 마지막 놀이는 정말 숨을 참아가며 봤다.',url:'https://sarak.yes24.com/review/22410667',image:'yes24-book2-excerpt-20260922.webp',width:884,height:105},
   {id:'kyobo-tj',author:'tj (마스킹 ID)',platform:'교보문고',volume:2,badge:'구매자 후기',date:'2026.07.17',topic:'한국형 오컬트의 맛',quote:'오래간만에 맛보는 한국형 오컬트 별미입니다.',url:KYOBO+'E000013298720',image:'kyobo-tj-book2-20260922.webp',width:814,height:109},
-  {id:'kyobo-yo',author:'yo (마스킹 ID)',platform:'교보문고',volume:3,badge:'구매자 후기',date:'2026.08.13',topic:'끝까지 읽은 뒤의 만족',quote:'마무리 부분도 매듭이 잘맺어진 느낌으로 재밌게 잘봤습니다.',url:KYOBO+'E000013298721'},
-  {id:'kyobo-ls',author:'ls (마스킹 ID)',platform:'교보문고',volume:2,badge:'독자 후기',date:'2026.07.17',topic:'다음 권을 펼치게 하는 힘',quote:'뒷내용 궁금해서 참을 수 없음!! 1권읽고 바로 2권 읽었음!!',url:KYOBO+'E000013298720',image:'kyobo-ls-book2-20260922.webp',width:814,height:107},
-  {id:'haeya',author:'해야',platform:'네이버 블로그',volume:1,badge:'도서 제공 서평',topic:'눈앞에 그려지는 장면',quote:'마치 잘 만들어진 영화 한편을 보는듯한 느낌을 받았다.',url:'https://blog.naver.com/haeya_s2/224390447851',photo:'haeya-book1-photo-20260922.webp'},
+  {id:'haeya',author:'해야',platform:'네이버 블로그',volume:'2·3',badge:'도서 제공 서평',date:'2026.09.28',topic:'세 권을 끝까지 읽은 뒤',quote:'긴 여정의 매듭을 맺다',quoteLabel:'서평 제목에서 발췌',description:'해야님의 2·3권 통합 서평입니다. 원문에서 시리즈를 마친 감상을 읽어보세요.',url:'https://blog.naver.com/haeya_s2/224424424529'},
   {id:'nanan',author:'나난',platform:'네이버 블로그',volume:1,badge:'도서 제공 서평',topic:'망설임을 넘어선 재미',quote:'하지만 이 모든 걱정과 고민과 불안에도 불구하고 이야기는 확실히 재미를 안겨준다.',description:'낯선 작가, 세 권의 긴 이야기. 읽기 전의 망설임을 털어놓은 서평은, 그럼에도 이야기가 주는 재미를 이야기합니다.',url:'https://blog.naver.com/noon472/224418554577',image:'nanan-book1-excerpt-20260922.webp',width:734,height:163},
   {id:'egg',author:'달걀댁',platform:'알라딘 서재',volume:1,badge:'도서 제공 서평',topic:'취향을 건드리는 퇴마와 전투',quote:'무엇보다도 내 취향에 딱 맞는 작품이었다.',description:'부적마다 다른 기능과 역동적인 전투 장면을 인상적으로 읽었다는 감상입니다.',url:'https://blog.aladin.co.kr/monkeyking/17476771'},
   {id:'soso',author:'소소 (kindlyhj)',platform:'네이버 블로그',volume:2,badge:'도서 제공 서평',topic:'두 번째 권에서 넓어지는 세계',summary:'1권을 다시 훑고 읽은 2권에서 넓어지는 세계와 빠른 전개를 인상적으로 받아들인 감상.',url:'https://blog.naver.com/kindlyhj/224415759199'}
@@ -91,15 +91,15 @@ function details(r){
   return '<details class="rr-details"><summary>후기 캡처와 출처 보기</summary>'+evidence(r)+sourceLink(r)+'</details>';
 }
 function shortCard(r,index){
-  const visible=r.id==='yes24-tj';
+  const visible=r.id==='kyobo-ls'||r.id==='kyobo-yo';
   return '<article class="rr-card" data-review-id="'+r.id+'"><div class="rr-topic"><span>'+r.topic+'</span><span>0'+(index+1)+' / '+r.volume+'권</span></div><blockquote>“'+escapeHtml(r.quote)+'”</blockquote>'+
     (r.context?'<p class="rr-context">“'+escapeHtml(r.context)+'”</p>':'')+metadata(r)+
-    (visible?evidence(r,'YES24 2권 리뷰 중 해당 문단 발췌 · 누르면 확대')+
-      '<details class="rr-details"><summary>구매 표시와 출처 보기</summary><figure class="rr-evidence">'+capture('yes24-book2-header-20260922.webp',536,78,'YES24 2권 구매 표시, 마스킹 ID와 작성일')+'<figcaption>위 발췌문과 같은 후기의 제목·작성 정보입니다.</figcaption></figure>'+sourceLink(r)+'</details>':details(r))+'</article>';
+    (r.id==='yes24-tj'?evidence(r,'YES24 2권 리뷰 중 해당 문단 발췌 · 누르면 확대')+
+      '<details class="rr-details"><summary>구매 표시와 출처 보기</summary><figure class="rr-evidence">'+capture('yes24-book2-header-20260922.webp',536,78,'YES24 2권 구매 표시, 마스킹 ID와 작성일')+'<figcaption>위 발췌문과 같은 후기의 제목·작성 정보입니다.</figcaption></figure>'+sourceLink(r)+'</details>':(visible?evidence(r)+sourceLink(r):details(r)))+'</article>';
 }
 function longCard(r){
   const body=r.summary?'<p class="rr-summary-title">'+r.topic+'</p><p class="rr-context">'+r.summary+'</p><p class="rr-caption">서평 내용 요약 · 직접 인용문이 아닙니다.</p>':
-    '<blockquote>“'+escapeHtml(r.quote)+'”</blockquote>'+(r.description?'<p class="rr-context">'+r.description+'</p>':'');
+    '<blockquote>“'+escapeHtml(r.quote)+'”</blockquote>'+(r.quoteLabel?'<p class="rr-caption">'+escapeHtml(r.quoteLabel)+'</p>':'')+(r.description?'<p class="rr-context">'+r.description+'</p>':'');
   const photo=r.photo?'<a class="rr-book-photo" href="'+EVIDENCE_ROOT+r.photo+'" target="_blank" rel="noopener noreferrer" aria-label="해야 독자가 찍은 매듭 1권 사진 확대 보기"><img src="'+EVIDENCE_ROOT+r.photo+'" width="693" height="867" alt="해야 서평에 실린 매듭 1권 실제 책 사진" loading="lazy" decoding="async"></a>':'';
   return '<article class="rr-card" data-review-id="'+r.id+'"><div class="rr-topic"><span>'+(r.summary?'이어 읽은 독자의 감상':r.topic)+'</span><span>'+r.volume+'권</span></div>'+
     (photo?'<div class="rr-photo-layout"><div>'+body+'</div>'+photo+'</div>':body)+metadata(r)+details(r)+'</article>';
@@ -110,7 +110,7 @@ const REVIEW_SECTION='<section class="section reader-reviews" id="reader-reviews
   '<header class="rr-head"><span class="rr-kicker">READER REVIEWS</span><h2 id="reader-reviews-title">읽은 뒤에야<br>나온 말들.</h2><p>첫 장의 흡입력부터, 마지막 장을 덮은 뒤의 재독까지.<br>독자들이 남긴 문장과 실제 후기 화면을 모았습니다.</p></header>'+
   '<article class="rr-lead" data-review-id="'+lead.id+'"><span class="rr-eyebrow">다 읽고, 다시 펼치는 이야기</span><blockquote>“'+lead.quote+'”</blockquote><p class="rr-context">“'+lead.context+'”</p>'+metadata(lead)+evidence(lead,'리디 3권 리뷰 첫 문단 발췌 · 누르면 확대')+
   '<details class="rr-details"><summary>구매 표시와 원문 출처 보기</summary><figure class="rr-evidence">'+capture('ridi-book3-author-20260922.webp',256,59,'리디 구매자 tot***의 작성 정보','rr-author-capture')+'<figcaption>같은 후기의 작성 정보입니다. 전체 원문에는 작품 내용이 포함되어 있습니다.</figcaption></figure>'+sourceLink(lead)+'</details></article>'+
-  '<div class="rr-grid" aria-label="긴장감, 장르, 완결과 이어 읽기 후기">'+REVIEWS.slice(2,6).map(shortCard).join('')+'</div>'+
+  '<div class="rr-grid" aria-label="긴장감, 장르, 몰입과 이어 읽기 후기">'+REVIEWS.slice(2,6).map(shortCard).join('')+'</div>'+
   '<div class="rr-rule"><h3>책을 곁에 두고 쓴 이야기</h3><p>읽기 전의 망설임부터 취향에 닿은 순간까지.<br>아래 네 편은 도서를 제공받아 작성된 서평입니다.</p></div>'+
   '<div class="rr-grid" aria-label="도서 제공 서평 네 편">'+REVIEWS.slice(6).map(longCard).join('')+'</div>'+
   '<div class="rr-bottom"><p>이번에는, 첫 장을 직접 펼쳐보세요.</p><a class="rr-action" href="./preview" data-track="review_preview_book1">1권 미리 읽기 <span aria-hidden="true">&nbsp; →</span></a></div>'+
