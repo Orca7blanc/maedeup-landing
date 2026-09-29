@@ -22,6 +22,8 @@
       "/index.html",
       "/preview",
       "/preview.html",
+      "/read",
+      "/read.html",
       "/seed",
       "/seed/*",
       "/seed-api/*",

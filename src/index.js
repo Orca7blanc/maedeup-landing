@@ -1,4 +1,5 @@
 import {handleSocialHealth, processApprovedSocialPosts} from './social-publisher.js';
+import {addEbookPreviewReturn} from './ebook-landing.js';
 
 const TITLES = {
   "자별":"판을 다시 짜는 생존자",
@@ -101,6 +102,9 @@ export default {
         return addSeedSerialPromo(assetResponse);
       }
       if (url.pathname === '/preview' || url.pathname === '/preview.html') {
+        return addAnonymousAnalytics(addEbookPreviewReturn(assetResponse, url));
+      }
+      if (url.pathname === '/read' || url.pathname === '/read.html') {
         return addAnonymousAnalytics(assetResponse);
       }
     }
