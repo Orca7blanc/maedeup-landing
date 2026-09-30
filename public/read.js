@@ -13,3 +13,15 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', recordVisit, {once:true});
   else recordVisit();
 })();
+
+// Atmospheric motion stays optional; book text and purchase links never move.
+(() => {
+  const button = document.querySelector('.motion-toggle');
+  if (!button) return;
+  button.hidden = false;
+  button.addEventListener('click', () => {
+    const paused = document.documentElement.classList.toggle('motion-paused');
+    button.setAttribute('aria-pressed', String(paused));
+    button.textContent = paused ? '배경 움직임 켜기' : '배경 움직임 끄기';
+  });
+})();

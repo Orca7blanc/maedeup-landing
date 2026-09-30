@@ -16,6 +16,7 @@
   <script src="/read.js" defer></script>
 </head>
 <body>
+  <div class="page-atmosphere" aria-hidden="true"></div>
   <a class="skip" href="#book">본문으로 건너뛰기</a>
   <header class="site-header wrap">
     <a class="brand" href="/" aria-label="매듭 공식 홈페이지"><img src="/read-assets/wordmark-original.png" width="917" height="824" alt="매듭"><span>이자운의 소설</span></a>
@@ -24,7 +25,7 @@
   <main>
     <section class="hero wrap" id="book" aria-labelledby="book-title">
       <div class="book-art">
-        <img src="/read-assets/cover-1.webp" width="640" height="906" alt="매듭 1 문지방을 넘어온 것들, 이자운 — 실제 앞표지" fetchpriority="high">
+        <div class="coastal-frame"><img src="/read-assets/coastal-book.jpg" width="864" height="1536" alt="파도치는 갯바위 위에 놓인 매듭 1권 — 문지방을 넘어온 것들" fetchpriority="high"></div>
         <span class="cover-caption">매듭 · 경상도편의 첫 번째 이야기</span>
       </div>
       <div class="book-heading">
@@ -85,6 +86,6 @@
       <a class="closing-preview" href="/preview?from=ebook" data-preview data-track="ebook_sample_bottom">1권 미리 읽기</a>
     </section>
   </main>
-  <footer class="wrap"><span>《매듭》 · 이자운</span><a href="/">공식 홈페이지 둘러보기 ↗</a></footer>
+  <footer class="wrap"><span>《매듭》 · 이자운</span><button class="motion-toggle" type="button" aria-pressed="false" hidden>배경 움직임 끄기</button><a href="/">공식 홈페이지 둘러보기 ↗</a></footer>
 </body>
 </html>
