@@ -106,3 +106,9 @@ body.sales-page{background:var(--sales-bg);color:var(--sales-ink);font:16px/1.75
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.sales-page *,.sales-page *:before,.sales-page *:after{animation:none!important;transition:none!important}}
 
 .rr-kicker{display:block;font-size:14px;letter-spacing:.09em;color:var(--sales-gold);margin-bottom:14px}.rr-head p{font-size:16px;margin-bottom:28px}.sales-reviews-more>summary:after{content:"+";font-size:23px;font-weight:300}.sales-reviews-more[open]>summary:after{content:"−"}
+/* Unify the retained legacy typography with the self-hosted font pair. */
+:root{--font-ui:var(--sales-sans);--font-title:var(--sales-serif)}
+.sales-page #main{overflow:clip}
+.sales-page .sales-hook{font-family:var(--sales-serif)!important}
+.sales-page .sales-edition h3{font-family:var(--sales-sans)!important}
+.sales-page .sales-hero h2,.sales-page .sales-section> .sales-wrap>h2,.sales-page .sales-purchase-heading h2,.sales-page .rr-head h2{font-weight:400!important}

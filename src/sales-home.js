@@ -30,7 +30,7 @@ export function buildSalesHome(html){
   head=head.replace(/<link href="https:\/\/cdn\.jsdelivr\.net\/npm\/font-kopubworld[^>]+>/,'');
   // Existing optional sections share the same accessible minimum type size.
   head=head.replace(/font-size:\s*(\d+(?:\.\d+)?)px/g,(match,n)=>Number(n)<14?'font-size:14px':match);
-  head=head.replace('</head>','<link rel="stylesheet" href="/sales-home.css?v=20261011a"><script src="/sales-home.js?v=20261011a" defer></script></head>');
+  head=head.replace('</head>','<link rel="stylesheet" href="/sales-home.css?v=20261011b"><script src="/sales-home.js?v=20261011a" defer></script></head>');
   return head+'<body class="sales-page">'+NAV+'<main id="main">'+HERO+renderSalesReviews()+PURCHASE+extras+test+'</main>'+footer+html.slice(scriptStart,bodyEnd)+'</body></html>';
 }
 export async function salesHomeResponse(response){
