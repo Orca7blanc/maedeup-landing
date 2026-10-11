@@ -116,6 +116,29 @@ const REVIEW_SECTION='<section class="section reader-reviews" id="reader-reviews
   '<div class="rr-bottom"><p>이번에는, 첫 장을 직접 펼쳐보세요.</p><a class="rr-action" href="./preview" data-track="review_preview_book1">1권 미리 읽기 <span aria-hidden="true">&nbsp; →</span></a></div>'+
   '<p class="rr-note">인용문은 원문 일부를 발췌했습니다. 구매자 표시는 판매처에서 확인된 후기에만 붙였습니다.<br>마스킹된 아이디는 가린 상태로 표시하며, 각 카드에서 원문을 확인할 수 있습니다.</p></div></section>';
 
+export function renderSalesReviews(){
+  const byId=new Map(REVIEWS.map(review=>[review.id,review]));
+  const leadIds=['kyobo-mi','nanan','yes24-tj'];
+  const moreIds=['haeya','kyobo-tj','egg','kyobo-ls','soso','kyobo-yo','ridi-tot'];
+  function salesCard(id){
+    const r=byId.get(id);
+    const topic=r.topic||(id==='kyobo-mi'?'첫 장의 흡입력':'다시 읽으며 발견하는 이야기');
+    const description=id==='nanan'?'읽기 전의 망설임과 읽은 뒤의 재미를 담은 1권 서평입니다.':r.description;
+    const body=r.summary?
+      '<p class="rr-caption">서평 내용 요약 · 직접 인용문이 아닙니다.</p><p class="rr-context">'+escapeHtml(r.summary)+'</p>':
+      '<blockquote>“'+escapeHtml(r.quote)+'”</blockquote>'+
+      (r.quoteLabel?'<p class="rr-caption">'+escapeHtml(r.quoteLabel)+'</p>':'')+
+      (r.context?'<p class="rr-context">“'+escapeHtml(r.context)+'”</p>':'')+
+      (description?'<p class="rr-context">'+escapeHtml(description)+'</p>':'');
+    return '<article class="rr-card" data-review-id="'+r.id+'"><div class="rr-topic"><span>'+escapeHtml(topic)+'</span><span>'+r.volume+'권</span></div>'+body+metadata(r)+details(r)+'</article>';
+  }
+  return '<section id="reader-reviews" class="sales-reviews sales-section" aria-labelledby="reader-reviews-title"><div class="sales-wrap">'+
+    '<header class="rr-head"><span class="rr-kicker">READER REVIEWS</span><h2 id="reader-reviews-title">먼저 읽은 독자들의 말</h2><p>독자들이 남긴 문장과 실제 후기 화면을 만나보세요.</p></header>'+
+    '<div class="rr-grid sales-review-leads" aria-label="대표 독자 후기 세 편">'+leadIds.map(salesCard).join('')+'</div>'+
+    '<details class="sales-fold sales-reviews-more"><summary>후기 7편 더 보기</summary><div class="rr-grid" aria-label="독자 후기 일곱 편">'+moreIds.map(salesCard).join('')+'</div></details>'+
+    '<p class="rr-note">후기 원문에는 줄거리와 스포일러가 포함될 수 있습니다.</p></div></section>';
+}
+
 function isHtml(response){
   return (response.headers.get('content-type')||'').toLowerCase().includes('text/html');
 }
