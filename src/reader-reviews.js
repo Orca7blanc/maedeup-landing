@@ -139,6 +139,29 @@ export function renderSalesReviews(){
     '<p class="rr-note">후기 원문에는 줄거리와 스포일러가 포함될 수 있습니다.</p></div></section>';
 }
 
+export function renderUnfoldedReaderReviews(){
+  const style=REVIEW_STYLE.replace(/font-size:(\d+(?:\.\d+)?)px/g,(declaration,size)=>Number(size)<14?'font-size:14px':declaration);
+  const byId=new Map(REVIEWS.map(review=>[review.id,review]));
+  const order=['kyobo-mi','nanan','yes24-tj','haeya','kyobo-tj','egg','kyobo-ls','soso','kyobo-yo','ridi-tot'];
+  const cards=order.map(id=>{
+    const r=byId.get(id);
+    const topic=r.topic?'<span>'+escapeHtml(r.topic)+'</span>':'';
+    const body=r.summary?
+      '<p class="rr-summary-title">'+escapeHtml(r.topic)+'</p><p class="rr-context">'+escapeHtml(r.summary)+'</p><p class="rr-caption">서평 내용 요약 · 직접 인용문이 아닙니다.</p>':
+      '<blockquote>“'+escapeHtml(r.quote)+'”</blockquote>'+
+      (r.quoteLabel?'<p class="rr-caption">'+escapeHtml(r.quoteLabel)+'</p>':'')+
+      (r.context?'<p class="rr-context">“'+escapeHtml(r.context)+'”</p>':'')+
+      (r.description?'<p class="rr-context">'+escapeHtml(r.description)+'</p>':'');
+    return '<article class="rr-card" data-review-id="'+r.id+'"><div class="rr-topic">'+topic+'<span>'+r.volume+'권</span></div>'+body+metadata(r)+(r.image?evidence(r):'')+sourceLink(r)+'</article>';
+  }).join('');
+  return style+'<section class="section reader-reviews" id="reader-reviews" aria-labelledby="reader-reviews-title"><div class="rr-wrap">'+
+    '<header class="rr-head"><span class="rr-kicker">READER REVIEWS</span><h2 id="reader-reviews-title">읽은 뒤에야<br>나온 말들.</h2><p>첫 장의 흡입력부터, 마지막 장을 덮은 뒤의 재독까지.<br>독자들이 남긴 문장과 실제 후기 화면을 모았습니다.</p></header>'+
+    '<div class="rr-grid" aria-label="독자 후기 열 편">'+cards+'</div>'+
+    '<p class="rr-note">인용문은 원문 일부를 발췌했습니다. 구매자 표시는 판매처에서 확인된 후기에만 붙였습니다.<br>도서를 제공받아 작성된 서평은 각 카드에 표시했습니다. 원문에는 줄거리와 스포일러가 포함될 수 있습니다.</p>'+
+    '<div class="rr-bottom"><a class="rr-action" href="#read" data-track="review_purchase_book1">1권 구매처 보기 <span aria-hidden="true">&nbsp; →</span></a></div>'+
+    '</div></section>';
+}
+
 function isHtml(response){
   return (response.headers.get('content-type')||'').toLowerCase().includes('text/html');
 }

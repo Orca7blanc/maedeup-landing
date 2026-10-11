@@ -1,37 +1,65 @@
-import {renderSalesReviews} from './reader-reviews.js';
+import {renderUnfoldedReaderReviews} from './reader-reviews.js';
+import {legacyExtrasStyle,legacyExtrasCard} from './home-extras.js';
 
-const MARKERS = ['<section class="section" id="world">','<section class="section scenes-showcase">','<section class="section" id="characters">','<section class="section quote-wall">','<section class="section" id="read">'];
-const STORE_LINKS = {
+const MARKERS = ['<nav class="nav">','<header class="hero" id="top">','<section class="bridge section" id="bridge">','<section class="section" id="world">','<section class="section scenes-showcase">','<section class="section" id="characters">','<section class="section quote-wall">','<section class="section" id="read">','<section class="section final">','<section class="section writer-notes" id="writer-notes">','<footer class="footer">','<script>'];
+const STORE_LINKS={
   ebook:[['리디','https://ridibooks.com/books/5273014881','ridi'],['교보문고','https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000013298635','kyobo'],['YES24','https://m.yes24.com/goods/detail/194173626','yes24']],
   paper:[['교보문고','https://product.kyobobook.co.kr/detail/S000220619545','kyobo'],['YES24','https://www.yes24.com/product/goods/193866498','yes24'],['알라딘','https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=398378496','aladin'],['영풍문고','https://m.ypbooks.co.kr/books/202607202831420296','ypbooks']]
 };
-function stores(format){return STORE_LINKS[format].map(([name,url,id])=>`<a class="sales-store" href="${url}" target="_blank" rel="noopener noreferrer" data-track="home_${format}_book1_${id}"><span>${name}<small>매듭 1권 ${format==='ebook'?'전자책':'종이책'}</small></span><span aria-hidden="true">↗</span></a>`).join('');}
-const NAV = `<a class="sales-skip" href="#main">본문으로 바로가기</a><nav class="sales-nav" aria-label="주요 메뉴"><div class="sales-wrap sales-nav-inner"><a class="sales-brand" href="#top" aria-label="매듭 첫 화면"><img src="/read-assets/wordmark-original.png" width="917" height="824" alt="매듭"><span>이자운의 소설</span></a><div class="sales-nav-links"><a href="#reader-reviews">독자 후기</a><a href="#more">더 알아보기</a><a class="sales-nav-buy" href="#read" data-track="home_nav_stores">구매처 보기 <span aria-hidden="true">↗</span></a></div></div></nav>`;
-const HERO = `<header class="sales-hero sales-wrap" id="top"><div class="sales-hero-copy"><p class="sales-genre">한국 요괴에 주술로 맞서는<br><strong>현대 오컬트 판타지</strong></p><h1><img src="/read-assets/logos/maedeup-1.png" width="1448" height="1086" alt="매듭 1"></h1><h2>문지방을 넘어온 것들</h2><p class="sales-byline">이자운 지음</p><p class="sales-hook">그날 밤, 낚싯바늘에 걸린 것은<br>고기가 아니었다.</p><p class="sales-intro">밤바다에서 시작된 실종.<br>오래된 주술사 가문과 금기가 얽힌 이야기,<br>첫 번째 매듭을 펼쳐보세요.</p><div class="sales-actions"><a class="sales-primary" href="#read" data-track="home_hero_stores">1권 구매처 보기 <span aria-hidden="true">→</span></a><a class="sales-text-link" href="/preview?from=home" data-home-preview data-track="home_hero_preview">먼저 읽어보기 <span aria-hidden="true">↗</span></a></div><p class="sales-price-line">전자책 11,900원 <span aria-hidden="true">·</span> 종이책 17,700원</p></div><figure class="sales-coast"><img src="/read-assets/coastal-book.jpg" width="864" height="1536" fetchpriority="high" alt="파도치는 갯바위 위에 놓인 매듭 1권, 문지방을 넘어온 것들"><figcaption>세 권의 이야기, 시작은 《매듭 1》에서.</figcaption></figure></header>`;
-const PURCHASE = `<section class="sales-purchase sales-section" id="read" aria-labelledby="sales-purchase-title"><div class="sales-wrap"><p class="sales-kicker">첫 번째 매듭을 펼칠 시간</p><div class="sales-purchase-heading"><h2 id="sales-purchase-title">어떤 책으로 읽을까요?</h2><a class="sales-text-link" href="/preview?from=home" data-home-preview data-track="home_store_preview">1권 미리읽기 ↗</a></div><div class="sales-format-switch" aria-label="책 형태 선택" hidden><button type="button" id="format-ebook" data-format="ebook" aria-controls="edition-ebook" aria-selected="true">전자책 <span>11,900원</span></button><button type="button" id="format-paper" data-format="paper" aria-controls="edition-paper" aria-selected="false">종이책 <span>17,700원</span></button></div><div class="sales-edition" id="edition-ebook"><div class="sales-edition-intro"><h3>전자책 · 1권</h3><p>11,900원 · 작가와<br>이용하는 서점에서 구매하고 읽어보세요.</p></div><div class="sales-stores">${stores('ebook')}</div><details class="sales-store-more"><summary>알라딘 전자책 시리즈 보기</summary><p>현재 확인된 2·3권 목록입니다.</p><a href="https://www.aladin.co.kr/search/wsearchresult.aspx?AuthorSearch=%ec%9d%b4%ec%9e%90%ec%9a%b4@10770557&amp;BranchType=9" target="_blank" rel="noopener noreferrer" data-track="home_ebook_series_aladin">알라딘에서 2·3권 보기 ↗</a></details></div><div class="sales-edition" id="edition-paper"><div class="sales-edition-intro"><h3>종이책 · 1권</h3><p>17,700원 · 부크크<br>책장을 넘기며 읽고, 책장에 간직하세요.</p></div><div class="sales-stores">${stores('paper')}</div><p class="sales-note">주문 제작(POD) 도서입니다. 제작·배송 일정은 각 서점에서 확인해 주세요.</p></div><p class="sales-note">각 서점의 1권 상품 페이지로 연결됩니다. 일부 서점에서는 로그인·성인 인증이 필요할 수 있습니다.<br>최종 결제 금액과 이용 조건은 판매처에서 확인해 주세요.</p></div></section>`;
-function fold(title,sub,content,id){return `<details class="sales-fold"${id?` id="${id}"`:''}><summary><span>${title}<small>${sub}</small></span><span class="sales-fold-mark" aria-hidden="true">+</span></summary><div class="sales-fold-content">${content}</div></details>`;}
+function stores(format){return STORE_LINKS[format].map(([name,url,id])=>`<a class="shop" href="${url}" target="_blank" rel="noopener noreferrer" data-track="home_${format}_book1_${id}"><span class="shop-name">${name}</span><span class="shop-format">1권 ${format==='ebook'?'전자책':'종이책'}</span></a>`).join('');}
+const FONT_AND_ORDER_STYLE=`<style id="home-order-adjustments">
+@font-face{font-family:Pretendard;src:url('/read-assets/fonts/PretendardVariable.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap}
+@font-face{font-family:'KoPub Batang';src:url('/read-assets/fonts/KoPubBatang-Regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
+:root{--font-ui:Pretendard,sans-serif;--font-title:'KoPub Batang',serif}
+html,body,button,a,input,textarea,select,p,.eyebrow,.meta,.navlinks,.navcta{font-family:var(--font-ui)!important}
+h1,h2,h3,.logo,.hero-copy .kicker,.hero-quote,.hero-last,.bridge-title,.manifesto,.rule b,.scene-lines,.char h3,.mid-buy strong,.recent-type{font-family:var(--font-title)!important}
+.edition-label{font-family:var(--font-ui)!important;font-size:17px;line-height:1.7;color:var(--gold2);margin:22px 0 12px}.edition-label:first-child{margin-top:0}
+.reader-reviews .rr-card blockquote{font-family:var(--font-title)}
+#survival-test .recent-survivors{text-align:left}#survival-test .recent-survivors h3{font-size:26px;margin-bottom:0}
+#survival-test .test-description{font-size:17px;line-height:1.9;margin:-12px 0 30px}
+@media(prefers-reduced-motion:reduce){.text-phase{animation:none!important}.phase-1,.phase-2{display:none!important}.phase-3{opacity:1!important}}
+</style>`;
 
-/** Keep the existing illustrated world and character sections as optional reading. */
+/** Reorder the original dark landing page without replacing its visual design. */
 export function buildSalesHome(html){
-  const positions=MARKERS.map(marker=>html.indexOf(marker));
-  if(positions.some((n,i)=>n<0||(i>0&&n<=positions[i-1])))throw new Error('Homepage section boundaries changed; refusing to discard existing content.');
-  const [world,scenes,characters,quote]=positions.slice(0,-1).map((start,i)=>html.slice(start,positions[i+1]));
-  const characterCards=characters.slice(0,characters.indexOf('<div class="test-start-row reveal">'))+'</div></section>';
+  let previous=html.indexOf('<body>');
+  const positions=MARKERS.map(marker=>{const found=html.indexOf(marker,previous);if(found<0)throw new Error('Homepage section boundaries changed; refusing to discard existing content.');previous=found+marker.length;return found;});
+  const parts=positions.slice(0,-1).map((start,i)=>html.slice(start,positions[i+1]));
+  let [nav,hero,bridge,world,scenes,characters,quote,purchase,final,writer,footer]=parts;
+  // Keep the original header and hero composition; their primary action now goes to buying.
+  nav=nav.replace('<div class="navlinks"><a href="#world">세계</a><a href="#characters">인물</a><a href="#characters">생존유형</a><a href="#read">읽기</a></div>','<div class="navlinks"><a href="#reader-reviews">독자 후기</a><a href="#read">구매처</a><a href="#world">세계</a><a href="#characters">인물</a></div>')
+    .replace('<a class="navcta" href="./test.html">K오컬트 생존유형 테스트</a>','<a class="navcta" href="#read" data-track="home_nav_stores">《매듭 1》 구매처 보기</a>');
+  hero=hero.replace('<div class="result-chip" id="resultChip"></div>','')
+    .replace('<a class="btn primary mokgan-primary" href="./test.html">14문항으로 유형 확인하기</a>','<a class="btn primary mokgan-primary" href="#read" data-track="home_hero_stores">《매듭 1》 구매처 보기</a>')
+    .replace('<a class="btn ghost mokgan-secondary" href="#world">1권 이야기 보기</a>','<a class="btn ghost mokgan-secondary" href="/preview?from=home" data-home-preview data-track="home_hero_preview">1권 미리읽기</a>');
+  const actionsStart=characters.indexOf('<div class="test-start-row reveal">');
   const recentStart=characters.indexOf('<div class="recent-survivors reveal"');
-  const recent=characters.slice(recentStart,characters.lastIndexOf('</div>\n</section>'));
-  if(recentStart<0||!characterCards.includes('characterPager'))throw new Error('Character content is incomplete.');
-  const extras=`<section class="sales-more sales-section" id="more" aria-labelledby="sales-more-title"><div class="sales-wrap"><p class="sales-kicker">이야기 속으로 한 걸음 더</p><h2 id="sales-more-title">궁금한 만큼, 펼쳐보세요.</h2>${fold('세계관과 이야기의 시작','밤바다의 실종 · 주술사 가문 · 금기',world+scenes+quote.replace('</img>',''),'world-details')}${fold('등장인물 만나기','서로 다른 방식으로 경계를 넘는 10명',characterCards.replace('10 SURVIVAL TYPES','CHARACTERS').replace('당신은 누구처럼 살아남을까.','그 밤을 건너는 사람들.').replace('14개의 상황을 지나면, 《매듭》 속 인물 10명 가운데 당신과 가장 닮은 생존 방식이 나타납니다.','《매듭》 속 인물들을 만나보세요. 인물 카드를 옆으로 넘겨볼 수 있습니다.'),'character-details')}${fold('작가의 기록과 또 다른 이야기','세계관 뒷이야기 · 제작기 · SeeD 연재',`<div class="sales-writer" id="writer-notes"><h3>작가의 기록</h3><p>책이 되기 전의 《매듭》과 그 뒤에 남은 이야기들.</p><a class="sales-text-link" href="https://m.blog.naver.com/orca7blanc" target="_blank" rel="noopener noreferrer" data-track="writer_blog_open">작가 블로그에서 읽기 ↗</a></div><div class="sales-writer" id="seed-serial"><h3>SeeD</h3><p>이자운의 또 다른 이야기. 멸망 이후의 세계를 기록하는 연재소설.</p><a class="sales-text-link" href="/seed" data-track="seed_serial_open">SeeD 연재 읽기 ↗</a></div>`,'writer-details')}</div></section>`;
-  const test=`<section class="sales-test sales-section" id="survival-test" aria-labelledby="bridgeTitle"><div class="sales-wrap"><p class="sales-kicker">마지막으로, 당신의 이야기</p><div class="result-chip" id="resultChip"></div><h2 id="bridgeTitle">당신은 누구처럼<br>살아남을까요?</h2><p id="bridgeMeta">14개의 상황, 10가지 생존 방식.<br>《매듭》 속 인물 가운데 당신과 닮은 사람을 만나보세요.</p><a class="sales-primary" href="/test.html" data-track="home_final_survival_test">생존유형 테스트 시작 <span aria-hidden="true">→</span></a>${fold('최근 생존자들의 기록','다른 독자들이 남긴 생존 유형',recent)}</div></section>`;
-  const footer='<footer class="sales-footer"><div class="sales-wrap"><p>《매듭》 · 이자운</p><a href="#read" data-track="home_footer_stores">1권 구매처 보기 ↑</a><button type="button" id="sales-motion" aria-pressed="false" hidden>배경 움직임 멈추기</button></div></footer>';
-  const bodyEnd=html.lastIndexOf('</body>');
-  const scriptStart=html.indexOf('<script>',html.indexOf('<footer class="footer">'));
-  if(scriptStart<0||bodyEnd<scriptStart)throw new Error('Homepage interactive script missing.');
+  const recentEnd=characters.lastIndexOf('</div>\n</section>');
+  if(actionsStart<0||recentStart<0||recentEnd<recentStart)throw new Error('Character content is incomplete.');
+  const recent=characters.slice(recentStart,recentEnd);
+  characters=(characters.slice(0,actionsStart)+'</div></section>\n')
+    .replace('10 SURVIVAL TYPES','CHARACTERS').replace('당신은 누구처럼 살아남을까.','그 밤을 건너는 사람들.')
+    .replace('14개의 상황을 지나면, 《매듭》 속 인물 10명 가운데 당신과 가장 닮은 생존 방식이 나타납니다.','《매듭》 속 인물들을 만나보세요. 서로 다른 방식으로 경계를 넘는 사람들입니다.');
+  // Preserve the two original purchase panels and their shop-button styling.
+  const gridStart=purchase.indexOf('<div class="shopgrid">');
+  const gridEnd=purchase.indexOf('<p class="shop-note">',gridStart);
+  if(gridStart<0||gridEnd<0)throw new Error('Purchase panel is incomplete.');
+  const allStores=`<div id="edition-ebook"><h4 class="edition-label">전자책 · 11,900원</h4><div class="shopgrid">${stores('ebook')}<a class="shop" href="https://www.aladin.co.kr/search/wsearchresult.aspx?AuthorSearch=%ec%9d%b4%ec%9e%90%ec%9a%b4@10770557&amp;BranchType=9" target="_blank" rel="noopener noreferrer" data-track="home_ebook_series_aladin"><span class="shop-name">알라딘</span><span class="shop-format">전자책 2·3권 목록</span></a></div></div><div id="edition-paper"><h4 class="edition-label">종이책 · 17,700원</h4><div class="shopgrid">${stores('paper')}</div></div>\n`;
+  purchase=(purchase.slice(0,gridStart)+allStores+purchase.slice(gridEnd))
+    .replace('서점별로 제공되는 판형이 다릅니다. 원하는 구매처를 선택해 주세요.','원하는 책 형태와 구매처를 선택해 주세요.')
+    .replace('href="./preview"','href="/preview?from=home" data-home-preview data-track="home_store_preview"');
+  bridge=bridge.replace('당신은 이미 문턱 앞에 서 있습니다.','당신은 누구처럼 살아남을까.')
+    .replace('테스트 결과로 들어오면, 이곳에 당신과 닮은 인물과 그가 살아가는 세계가 표시됩니다.','14개의 상황을 지나, 《매듭》 속 당신과 닮은 생존 방식을 만나보세요.')
+    .replace('<div class="bridge-title"','<div class="result-chip" id="resultChip"></div><div class="bridge-title"');
+  final=final.replace('<section class="section final">','<section class="section final" id="survival-test">')
+    .replace('<a class="btn primary mokgan-primary" href="#read">《매듭 문지방을 넘어온 것들》 읽기</a>','<p class="test-description">14문항으로 만나는, 당신의 생존 유형.</p><a class="btn primary mokgan-primary" href="/test.html" data-track="home_final_survival_test">생존유형 테스트 시작</a>')
+    .replace('</div>\n</section>',recent+'</div>\n</section>');
   let head=html.slice(0,html.indexOf('<body>'));
-  head=head.replace(/<link href="https:\/\/cdn\.jsdelivr\.net\/npm\/font-kopubworld[^>]+>/,'');
-  // Existing optional sections share the same accessible minimum type size.
+  head=head.replace(/<link[^>]+href="https:\/\/cdn\.jsdelivr\.net\/[^">]*(?:font-kopubworld|pretendard)[^">]*"[^>]*>/g,'');
+  head=head.replace('</head>',legacyExtrasStyle+FONT_AND_ORDER_STYLE+'<script src="/home-order.js?v=20261011" defer></script></head>');
   head=head.replace(/font-size:\s*(\d+(?:\.\d+)?)px/g,(match,n)=>Number(n)<14?'font-size:14px':match);
-  head=head.replace('</head>','<link rel="stylesheet" href="/sales-home.css?v=20261011b"><script src="/sales-home.js?v=20261011a" defer></script></head>');
-  return head+'<body class="sales-page">'+NAV+'<main id="main">'+HERO+renderSalesReviews()+PURCHASE+extras+test+'</main>'+footer+html.slice(scriptStart,bodyEnd)+'</body></html>';
+  const scripts=html.slice(positions.at(-1),html.lastIndexOf('</body>'));
+  return head+'<body class="original-home">'+nav+'<main id="main">'+hero+renderUnfoldedReaderReviews()+purchase+world+scenes+characters+quote.replace('</img>','')+writer+legacyExtrasCard+bridge+final+'</main>'+footer+scripts+'</body></html>';
 }
 export async function salesHomeResponse(response){
   if(!response.ok)return response;
