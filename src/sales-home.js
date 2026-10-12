@@ -7,14 +7,8 @@ const STORE_LINKS={
   paper:[['교보문고','https://product.kyobobook.co.kr/detail/S000220619545','kyobo'],['YES24','https://www.yes24.com/product/goods/193866498','yes24'],['알라딘','https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=398378496','aladin'],['영풍문고','https://m.ypbooks.co.kr/books/202607202831420296','ypbooks']]
 };
 function stores(format){return STORE_LINKS[format].map(([name,url,id])=>`<a class="shop" href="${url}" target="_blank" rel="noopener noreferrer" data-track="home_${format}_book1_${id}"><span class="shop-name">${name}</span><span class="shop-format">1권 ${format==='ebook'?'전자책':'종이책'}</span></a>`).join('');}
-const FONT_AND_ORDER_STYLE=`<style id="home-order-adjustments">
-@font-face{font-family:Pretendard;src:url('/read-assets/fonts/PretendardVariable.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap}
-@font-face{font-family:'KoPub Batang';src:url('/read-assets/fonts/KoPubBatang-Regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
-:root{--font-ui:Pretendard,sans-serif;--font-title:'KoPub Batang',serif}
-html,body,button,a,input,textarea,select,p,.eyebrow,.meta,.navlinks,.navcta{font-family:var(--font-ui)!important}
-h1,h2,h3,.logo,.hero-copy .kicker,.hero-quote,.hero-last,.bridge-title,.manifesto,.rule b,.scene-lines,.char h3,.mid-buy strong,.recent-type{font-family:var(--font-title)!important}
+const ORDER_STYLE=`<style id="home-order-adjustments">
 .edition-label{font-family:var(--font-ui)!important;font-size:17px;line-height:1.7;color:var(--gold2);margin:22px 0 12px}.edition-label:first-child{margin-top:0}
-.reader-reviews .rr-card blockquote{font-family:var(--font-title)}
 #survival-test .recent-survivors{text-align:left}#survival-test .recent-survivors h3{font-size:26px;margin-bottom:0}
 #survival-test .test-description{font-size:17px;line-height:1.9;margin:-12px 0 30px}
 @media(prefers-reduced-motion:reduce){.text-phase{animation:none!important}.phase-1,.phase-2{display:none!important}.phase-3{opacity:1!important}}
@@ -38,7 +32,7 @@ export function buildSalesHome(html){
   if(actionsStart<0||recentStart<0||recentEnd<recentStart)throw new Error('Character content is incomplete.');
   const recent=characters.slice(recentStart,recentEnd);
   characters=(characters.slice(0,actionsStart)+'</div></section>\n')
-    .replace('10 SURVIVAL TYPES','CHARACTERS').replace('당신은 누구처럼 살아남을까.','그 밤을 건너는 사람들.')
+    .replace('10 SURVIVAL TYPES','CHARACTERS').replace('당신은 누구처럼 살아남을까.','밤을 건너는 사람')
     .replace('14개의 상황을 지나면, 《매듭》 속 인물 10명 가운데 당신과 가장 닮은 생존 방식이 나타납니다.','《매듭》 속 인물들을 만나보세요. 서로 다른 방식으로 경계를 넘는 사람들입니다.');
   // Preserve the two original purchase panels and their shop-button styling.
   const gridStart=purchase.indexOf('<div class="shopgrid">');
@@ -46,6 +40,7 @@ export function buildSalesHome(html){
   if(gridStart<0||gridEnd<0)throw new Error('Purchase panel is incomplete.');
   const allStores=`<div id="edition-ebook"><h4 class="edition-label">전자책 · 11,900원</h4><div class="shopgrid">${stores('ebook')}<a class="shop" href="https://www.aladin.co.kr/search/wsearchresult.aspx?AuthorSearch=%ec%9d%b4%ec%9e%90%ec%9a%b4@10770557&amp;BranchType=9" target="_blank" rel="noopener noreferrer" data-track="home_ebook_series_aladin"><span class="shop-name">알라딘</span><span class="shop-format">전자책 2·3권 목록</span></a></div></div><div id="edition-paper"><h4 class="edition-label">종이책 · 17,700원</h4><div class="shopgrid">${stores('paper')}</div></div>\n`;
   purchase=(purchase.slice(0,gridStart)+allStores+purchase.slice(gridEnd))
+    .replace('이야기는 여기서 시작됩니다.','구매처 안내')
     .replace('서점별로 제공되는 판형이 다릅니다. 원하는 구매처를 선택해 주세요.','원하는 책 형태와 구매처를 선택해 주세요.')
     .replace('href="./preview"','href="/preview?from=home" data-home-preview data-track="home_store_preview"');
   bridge=bridge.replace('당신은 이미 문턱 앞에 서 있습니다.','당신은 누구처럼 살아남을까.')
@@ -55,8 +50,10 @@ export function buildSalesHome(html){
     .replace('<a class="btn primary mokgan-primary" href="#read">《매듭 문지방을 넘어온 것들》 읽기</a>','<p class="test-description">14문항으로 만나는, 당신의 생존 유형.</p><a class="btn primary mokgan-primary" href="/test.html" data-track="home_final_survival_test">생존유형 테스트 시작</a>')
     .replace('</div>\n</section>',recent+'</div>\n</section>');
   let head=html.slice(0,html.indexOf('<body>'));
-  head=head.replace(/<link[^>]+href="https:\/\/cdn\.jsdelivr\.net\/[^">]*(?:font-kopubworld|pretendard)[^">]*"[^>]*>/g,'');
-  head=head.replace('</head>',legacyExtrasStyle+FONT_AND_ORDER_STYLE+'<script src="/home-order.js?v=20261011" defer></script></head>');
+  // Keep the pre-sales-page font families, weights and text assignments.
+  // The original KoPubWorld stylesheet URL omitted its /css directory.
+  head=head.replace('font-kopubworld@1.0.3/batang.min.css','font-kopubworld@1.0.3/css/batang.min.css');
+  head=head.replace('</head>',legacyExtrasStyle+ORDER_STYLE+'<script src="/home-order.js?v=20261011" defer></script></head>');
   head=head.replace(/font-size:\s*(\d+(?:\.\d+)?)px/g,(match,n)=>Number(n)<14?'font-size:14px':match);
   const scripts=html.slice(positions.at(-1),html.lastIndexOf('</body>'));
   return head+'<body class="original-home">'+nav+'<main id="main">'+hero+renderUnfoldedReaderReviews()+purchase+world+scenes+characters+quote.replace('</img>','')+writer+legacyExtrasCard+bridge+final+'</main>'+footer+scripts+'</body></html>';

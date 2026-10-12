@@ -107,7 +107,7 @@ function longCard(r){
 const hero=REVIEWS[0],lead=REVIEWS[1];
 const HERO_REVIEW='<aside class="rr-hero" data-review-id="'+hero.id+'" aria-label="첫 장을 읽은 독자의 반응"><blockquote>“'+hero.quote+'”</blockquote>'+metadata(hero)+details(hero)+'</aside>';
 const REVIEW_SECTION='<section class="section reader-reviews" id="reader-reviews" aria-labelledby="reader-reviews-title"><div class="rr-wrap">'+
-  '<header class="rr-head"><span class="rr-kicker">READER REVIEWS</span><h2 id="reader-reviews-title">읽은 뒤에야<br>나온 말들.</h2><p>첫 장의 흡입력부터, 마지막 장을 덮은 뒤의 재독까지.<br>독자들이 남긴 문장과 실제 후기 화면을 모았습니다.</p></header>'+
+  '<header class="rr-head"><span class="rr-kicker">READER REVIEWS</span><h2 id="reader-reviews-title">독자 후기들</h2><p>첫 장의 흡입력부터, 마지막 장을 덮은 뒤의 재독까지.<br>독자들이 남긴 문장과 실제 후기 화면을 모았습니다.</p></header>'+
   '<article class="rr-lead" data-review-id="'+lead.id+'"><span class="rr-eyebrow">다 읽고, 다시 펼치는 이야기</span><blockquote>“'+lead.quote+'”</blockquote><p class="rr-context">“'+lead.context+'”</p>'+metadata(lead)+evidence(lead,'리디 3권 리뷰 첫 문단 발췌 · 누르면 확대')+
   '<details class="rr-details"><summary>구매 표시와 원문 출처 보기</summary><figure class="rr-evidence">'+capture('ridi-book3-author-20260922.webp',256,59,'리디 구매자 tot***의 작성 정보','rr-author-capture')+'<figcaption>같은 후기의 작성 정보입니다. 전체 원문에는 작품 내용이 포함되어 있습니다.</figcaption></figure>'+sourceLink(lead)+'</details></article>'+
   '<div class="rr-grid" aria-label="긴장감, 장르, 몰입과 이어 읽기 후기">'+REVIEWS.slice(2,6).map(shortCard).join('')+'</div>'+
@@ -155,7 +155,7 @@ export function renderUnfoldedReaderReviews(){
     return '<article class="rr-card" data-review-id="'+r.id+'"><div class="rr-topic">'+topic+'<span>'+r.volume+'권</span></div>'+body+metadata(r)+(r.image?evidence(r):'')+sourceLink(r)+'</article>';
   }).join('');
   return style+'<section class="section reader-reviews" id="reader-reviews" aria-labelledby="reader-reviews-title"><div class="rr-wrap">'+
-    '<header class="rr-head"><span class="rr-kicker">READER REVIEWS</span><h2 id="reader-reviews-title">읽은 뒤에야<br>나온 말들.</h2><p>첫 장의 흡입력부터, 마지막 장을 덮은 뒤의 재독까지.<br>독자들이 남긴 문장과 실제 후기 화면을 모았습니다.</p></header>'+
+    '<header class="rr-head"><span class="rr-kicker">READER REVIEWS</span><h2 id="reader-reviews-title">독자 후기들</h2><p>첫 장의 흡입력부터, 마지막 장을 덮은 뒤의 재독까지.<br>독자들이 남긴 문장과 실제 후기 화면을 모았습니다.</p></header>'+
     '<div class="rr-grid" aria-label="독자 후기 열 편">'+cards+'</div>'+
     '<p class="rr-note">인용문은 원문 일부를 발췌했습니다. 구매자 표시는 판매처에서 확인된 후기에만 붙였습니다.<br>도서를 제공받아 작성된 서평은 각 카드에 표시했습니다. 원문에는 줄거리와 스포일러가 포함될 수 있습니다.</p>'+
     '<div class="rr-bottom"><a class="rr-action" href="#read" data-track="review_purchase_book1">1권 구매처 보기 <span aria-hidden="true">&nbsp; →</span></a></div>'+
