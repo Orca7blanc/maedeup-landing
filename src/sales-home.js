@@ -32,7 +32,7 @@ export function buildSalesHome(html){
   if(actionsStart<0||recentStart<0||recentEnd<recentStart)throw new Error('Character content is incomplete.');
   const recent=characters.slice(recentStart,recentEnd);
   characters=(characters.slice(0,actionsStart)+'</div></section>\n')
-    .replace('10 SURVIVAL TYPES','CHARACTERS').replace('당신은 누구처럼 살아남을까.','밤을 건너는 사람')
+    .replace('10 SURVIVAL TYPES','CHARACTERS').replace('당신은 누구처럼 살아남을까.','밤을 건너는 이들')
     .replace('14개의 상황을 지나면, 《매듭》 속 인물 10명 가운데 당신과 가장 닮은 생존 방식이 나타납니다.','《매듭》 속 인물들을 만나보세요. 서로 다른 방식으로 경계를 넘는 사람들입니다.');
   // Preserve the two original purchase panels and their shop-button styling.
   const gridStart=purchase.indexOf('<div class="shopgrid">');
