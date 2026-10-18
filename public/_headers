@@ -1,0 +1,4 @@
+# Landing image names include a content hash. A changed image gets a new URL.
+# Keep these outside /assets/, which the worker proxies to the SeeD application.
+/landing-media/*
+  Cache-Control: public, max-age=31536000, immutable

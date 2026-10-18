@@ -2,6 +2,16 @@
 
 Cloudflare Workers Static Assets + D1 결과공유 게시판.
 
+## 홈페이지 로딩
+
+홈페이지 이미지는 `public/landing-media/`의 원본 파일로 제공한다. 파일명에
+내용 해시를 포함하므로 이미지를 바꾸면 새 파일명을 사용한다. 아래쪽 이미지는
+지연 로딩하며, 첫 화면의 제목과 책 표지는 바로 요청한다. `/assets/`는 SeeD
+프록시 경로이므로 홈페이지 이미지를 그 경로에 넣지 않는다.
+
+KoPub과 Pretendard의 기존 서체를 유지하되 글꼴 다운로드가 첫 화면을 막지 않도록
+기본 글꼴로 먼저 표시한다. 이미지 분리는 원본 바이트를 보존하며 화질을 바꾸지 않는다.
+
 첫 배포 후 Cloudflare Dashboard > Worker > Bindings > Add binding > D1 database 에서 변수명을 `DB`로 지정하고 기존 `maedeup-survivors` 데이터베이스를 선택하세요.
 
 ## 전자책 1권 광고 도착지
