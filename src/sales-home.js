@@ -53,7 +53,7 @@ export function buildSalesHome(html){
   // Keep the pre-sales-page font families, weights and text assignments.
   // The original KoPubWorld stylesheet URL omitted its /css directory.
   head=head.replace('font-kopubworld@1.0.3/batang.min.css','font-kopubworld@1.0.3/css/batang.min.css');
-  head=head.replace('</head>',legacyExtrasStyle+ORDER_STYLE+'<script src="/home-order.js?v=20261011" defer></script><script src="/store-app-links.js?v=20261019" defer></script></head>');
+  head=head.replace('</head>',legacyExtrasStyle+ORDER_STYLE+'<script src="/home-order.js?v=20261011" defer></script><script src="/store-app-links.js?v=20261020" defer></script></head>');
   head=head.replace(/font-size:\s*(\d+(?:\.\d+)?)px/g,(match,n)=>Number(n)<14?'font-size:14px':match);
   const scripts=html.slice(positions.at(-1),html.lastIndexOf('</body>'));
   return head+'<body class="original-home">'+nav+'<main id="main">'+hero+renderUnfoldedReaderReviews()+purchase+world+scenes+characters+quote.replace('</img>','')+writer+legacyExtrasCard+bridge+final+'</main>'+footer+scripts+'</body></html>';
