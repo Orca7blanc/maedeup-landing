@@ -13,7 +13,8 @@ const KY_PAPER = 'https://product.kyobobook.co.kr/detail/S000220619545';
 const KY_EBOOK = 'https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000013298635';
 const YES_PAPER = 'https://www.yes24.com/product/goods/193866498';
 const YES_EBOOK = 'https://m.yes24.com/goods/detail/194173626';
-const supported = [KY_EBOOK, YES_EBOOK, KY_PAPER, YES_PAPER];
+const RIDI_EBOOK = 'https://ridibooks.com/books/5273014881';
+const supported = [RIDI_EBOOK, KY_EBOOK, YES_EBOOK, KY_PAPER, YES_PAPER];
 const campaign = '?utm_source=meta&utm_medium=paid_social&utm_campaign=maedeup_book1&utm_content=C';
 
 // A small DOM model exercises element ownership, selector filtering and the
@@ -55,7 +56,7 @@ class Element {
   }
 }
 
-function browser({platform = 'android', page = 'home', extra = [], analytics = false} = {}) {
+function browser({platform = 'android', page = 'home', extra = [], analytics = false, search = campaign} = {}) {
   const root = new Element('html'), head = new Element('head'), body = new Element('body'), purchase = new Element('section'), grid = new Element('div');
   purchase.id = page === 'home' ? 'read' : 'stores'; grid.className = page === 'home' ? 'shopgrid' : 'store-grid';
   root.append(head, body); body.append(purchase); purchase.append(grid);
@@ -84,7 +85,7 @@ function browser({platform = 'android', page = 'home', extra = [], analytics = f
   }[platform];
   const storage = () => { const data = new Map(); return {getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, value)}; };
   let sequence = 0;
-  const context = vm.createContext({document, window: {}, navigator: {...nav, doNotTrack: '0', webdriver: false}, location: {pathname: page === 'home' ? '/' : '/read', search: campaign}, URLSearchParams, URL, Blob, Date, localStorage: storage(), sessionStorage: storage(), crypto: {randomUUID: () => 'test-id-' + ++sequence}, matchMedia: () => ({matches: false}), setInterval() {}, addEventListener() {}, fetch(_url, init) { events.push(...JSON.parse(init.body).events); return Promise.resolve(); }});
+  const context = vm.createContext({document, window: {}, navigator: {...nav, doNotTrack: '0', webdriver: false}, location: {pathname: page === 'home' ? '/' : '/read', search}, URLSearchParams, URL, Blob, Date, localStorage: storage(), sessionStorage: storage(), crypto: {randomUUID: () => 'test-id-' + ++sequence}, matchMedia: () => ({matches: false}), setInterval() {}, addEventListener() {}, fetch(_url, init) { events.push(...JSON.parse(init.body).events); return Promise.resolve(); }});
   if (analytics) vm.runInContext(ANALYTICS_SCRIPT.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, ''), context);
   if (page === 'read') vm.runInContext(readSource, context);
   const initial = links.map(el => ({el, href: el.href, target: el.getAttribute('target'), track: el.dataset.track}));
@@ -94,10 +95,33 @@ function browser({platform = 'android', page = 'home', extra = [], analytics = f
   return {root, grid, document, links, initial, run, apps, events, click};
 }
 
-function expectedRoute(url) {
-  if (url.includes('kyobobook.co.kr')) return {scheme: 'kyobobook', package: 'mok.android', route: 'webview?url=' + encodeURIComponent(url)};
+function assertAppRoute(app, web, platform) {
+  if (web.href === RIDI_EBOOK) {
+    assert.equal(platform, 'android', 'RIDI native routing is verified only for Android');
+    assert.equal(app.href, 'intent://ContentsHome/5273014881/share#Intent;scheme=ridi;package=com.initialcoms.ridi;S.browser_fallback_url=' + encodeURIComponent(RIDI_EBOOK) + ';end');
+    assert.equal(decodeURIComponent(app.href.match(/S\.browser_fallback_url=([^;]+)/)[1]), RIDI_EBOOK);
+    return;
+  }
+  if (web.href === KY_EBOOK || web.href === KY_PAPER) {
+    const outer = new URL(app.href);
+    assert.equal(outer.origin, 'https://apps.kyobobook.co.kr');
+    assert.equal(outer.pathname, '/api/v1/click/53ZVm7lpXE2DBPo45wUhTw/ZVGe11UKI0iOYYg0gDMeWw');
+    assert.deepEqual([...outer.searchParams.keys()], ['deeplink_custom_path']);
+    assert.equal(outer.hash, '');
+    const inner = new URL(outer.searchParams.get('deeplink_custom_path'));
+    assert.equal(inner.protocol, 'kyobobook:');
+    assert.equal(inner.hostname, 'webview');
+    assert.deepEqual([...inner.searchParams.keys()], ['url']);
+    assert.equal(inner.searchParams.get('url'), web.href);
+    assert.equal(inner.hash, '');
+    return;
+  }
   // YES24 expectations are specified independently of the production script.
-  return {scheme: 'YES24', package: 'com.yes24.commerce', route: 'MAIN?returnUrl=' + encodeURIComponent(url)};
+  const route = 'MAIN?returnUrl=' + encodeURIComponent(web.href);
+  if (platform === 'android') {
+    assert.equal(app.href, 'intent://' + route + '#Intent;scheme=YES24;package=com.yes24.commerce;S.browser_fallback_url=' + encodeURIComponent(web.href) + ';end');
+    assert.equal(decodeURIComponent(app.href.match(/S\.browser_fallback_url=([^;]+)/)[1]), web.href);
+  } else assert.equal(app.href, 'YES24://' + route);
 }
 
 test('desktop visitors retain the original store actions and no mobile UI', () => {
@@ -108,14 +132,13 @@ test('desktop visitors retain the original store actions and no mobile UI', () =
   for (const {el} of b.initial) assert.equal(el.parentElement, b.grid);
 });
 
-test('Android links use the verified per-store routes, explicit packages and exact web fallbacks', () => {
+test('Android uses Kyobo dispatcher, the exact RIDI ContentsHome book route, and YES24 intent fallback', () => {
   const b = browser(); b.run();
-  assert.equal(b.apps().length, 4);
+  assert.equal(b.apps().length, 5);
   for (const app of b.apps()) {
-    const web = app.parentElement.children[0]; const expected = expectedRoute(web.href);
+    const web = app.parentElement.children[0];
     assert.ok(supported.includes(web.href));
-    assert.equal(app.href, 'intent://' + expected.route + '#Intent;scheme=' + expected.scheme + ';package=' + expected.package + ';S.browser_fallback_url=' + encodeURIComponent(web.href) + ';end');
-    assert.equal(decodeURIComponent(app.href.match(/S\.browser_fallback_url=([^;]+)/)[1]), web.href);
+    assertAppRoute(app, web, 'android');
     assert.equal(app.dataset.track, web.dataset.track);
   }
 });
@@ -124,11 +147,31 @@ for (const platform of ['iphone', 'ipad']) test(`${platform} exposes direct app 
   const b = browser({platform}); b.run();
   assert.equal(b.apps().length, 4);
   for (const app of b.apps()) {
-    const web = app.parentElement.children[0]; const expected = expectedRoute(web.href);
-    assert.equal(app.href, expected.scheme + '://' + expected.route);
+    const web = app.parentElement.children[0];
+    assertAppRoute(app, web, platform);
     assert.equal(web.children.filter(el => el.className === 'store-web-label')[0]?.textContent, '웹에서 구매');
   }
   assert.match(b.document.getElementById('store-app-help').textContent, /앱이 열리지 않으면/);
+  const ridi = b.links.find(web => web.href === RIDI_EBOOK);
+  assert.equal(ridi.parentElement, b.grid, 'unverified iOS RIDI native route is not exposed');
+  assert.equal(ridi.dataset.appEnhanced, undefined);
+});
+
+test('official app routes do not forward landing attribution, personal data or arbitrary query parameters', () => {
+  const b = browser({search: campaign + '&email=private%40example.test&token=secret&next=https%3A%2F%2Fevil.example'}); b.run();
+  for (const app of b.apps()) {
+    assertAppRoute(app, app.parentElement.children[0], 'android');
+    const readable = decodeURIComponent(decodeURIComponent(app.href));
+    assert.doesNotMatch(readable, /utm_|private|secret|evil\.example|email=|token=/);
+  }
+});
+
+test('both landing pages load the revised app script and read attribution runs first', () => {
+  for (const html of [home, ebook]) {
+    assert.match(html, /<script src="\/store-app-links\.js\?v=20261020" defer><\/script>/);
+    assert.doesNotMatch(html, /store-app-links\.js\?v=20261019/);
+  }
+  assert.ok(ebook.indexOf('<script src="/read.js" defer>') < ebook.indexOf('<script src="/store-app-links.js'));
 });
 
 test('enhancement preserves original web destinations, target behavior and attribution', () => {
@@ -140,22 +183,31 @@ test('enhancement preserves original web destinations, target behavior and attri
 
 test('/read retains its real runtime campaign suffix exactly once', () => {
   const b = browser({page: 'read'}); b.run();
-  assert.equal(b.apps().length, 2);
-  assert.deepEqual(b.apps().map(el => el.dataset.track), ['ebook_bookstore_kyobo_C', 'ebook_bookstore_yes24_C']);
+  assert.equal(b.apps().length, 3);
+  assert.deepEqual(b.apps().map(el => el.dataset.track), ['ebook_bookstore_ridi_C', 'ebook_bookstore_kyobo_C', 'ebook_bookstore_yes24_C']);
   for (const app of b.apps()) assert.equal(app.dataset.track, app.parentElement.children[0].dataset.track);
 });
 
+for (const platform of ['iphone', 'ipad']) test(`/read on ${platform} keeps RIDI web-only`, () => {
+  const b = browser({page: 'read', platform}); b.run();
+  assert.equal(b.apps().length, 2);
+  assert.deepEqual(b.apps().map(el => el.dataset.track), ['ebook_bookstore_kyobo_C', 'ebook_bookstore_yes24_C']);
+  const ridi = b.links.find(web => web.href === RIDI_EBOOK);
+  assert.equal(ridi.parentElement, b.grid);
+  assert.equal(ridi.dataset.track, 'ebook_bookstore_ridi_C');
+});
+
 test('unknown and query-modified destinations never receive an app action', () => {
-  const extra = ['https://evil.example/?next=' + encodeURIComponent(KY_PAPER), KY_PAPER + '?next=https://evil.example', 'https://product.kyobobook.co.kr/detail/S000000000000'];
+  const extra = ['https://evil.example/?next=' + encodeURIComponent(KY_PAPER), KY_PAPER + '?next=https://evil.example', 'https://product.kyobobook.co.kr/detail/S000000000000', 'https://ridibooks.com/books/1', RIDI_EBOOK + '?next=https://evil.example'];
   const b = browser({extra}); b.run();
-  assert.equal(b.apps().length, 4);
+  assert.equal(b.apps().length, 5);
   for (const el of b.links.slice(-extra.length)) { assert.equal(el.parentElement, b.grid); assert.equal(el.dataset.appEnhanced, undefined); }
 });
 
 test('repeated initialization creates no duplicate links, helper or style', () => {
   const b = browser(); b.run(); const originalApps = b.apps(); b.run();
   assert.deepEqual(b.apps(), originalApps);
-  assert.equal(b.root.querySelectorAll('.store-app-option').length, 4);
+  assert.equal(b.root.querySelectorAll('.store-app-option').length, 5);
   assert.equal(b.root.querySelectorAll('#store-app-help').length, 1);
   assert.equal(b.root.querySelectorAll('#store-app-style').length, 1);
   for (const app of b.apps()) assert.equal(app.parentElement.children[0].children.filter(el => el.className === 'store-web-label').length, 1);
@@ -165,7 +217,7 @@ test('the real delegated analytics records one attributed outbound event per app
   const b = browser({analytics: true}); b.run(); b.run();
   b.events.length = 0;
   for (const app of b.apps()) b.click(app);
-  assert.equal(b.events.length, 4);
+  assert.equal(b.events.length, 5);
   assert.deepEqual(b.events.map(event => event.target), b.apps().map(app => app.dataset.track));
   assert.ok(b.events.every(event => event.eventType === 'click' && event.adVariant === 'C' && event.utmCampaign === 'maedeup_book1'));
   assert.equal(new Set(b.events.map(event => event.sessionId)).size, 1);

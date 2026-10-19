@@ -10,8 +10,9 @@
   // Keep a strict list of the existing book destinations. Never forward the
   // landing page's query string or a visitor-supplied URL into another app.
   const destinations = new Map([
-    ['https://product.kyobobook.co.kr/detail/S000220619545', {id: 'kyobo', name: '교보문고', format: '종이책', scheme: 'kyobobook', package: 'mok.android', route: 'webview?url='}],
-    ['https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000013298635', {id: 'kyobo', name: '교보문고', format: '전자책', scheme: 'kyobobook', package: 'mok.android', route: 'webview?url='}],
+    ['https://ridibooks.com/books/5273014881', {id: 'ridi', name: '리디', format: '전자책', scheme: 'ridi', package: 'com.initialcoms.ridi', route: 'ContentsHome/5273014881/share', androidOnly: true}],
+    ['https://product.kyobobook.co.kr/detail/S000220619545', {id: 'kyobo', name: '교보문고', format: '종이책'}],
+    ['https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000013298635', {id: 'kyobo', name: '교보문고', format: '전자책'}],
     ['https://m.yes24.com/goods/detail/194173626', {id: 'yes24', name: 'YES24', format: '전자책', scheme: 'YES24', package: 'com.yes24.commerce', route: 'MAIN?returnUrl='}],
     ['https://www.yes24.com/product/goods/193866498', {id: 'yes24', name: 'YES24', format: '종이책', scheme: 'YES24', package: 'com.yes24.commerce', route: 'MAIN?returnUrl='}]
   ]);
@@ -19,17 +20,28 @@
   document.querySelectorAll('a.shop[data-track], a.store[data-track]').forEach(web => {
     const url = web.getAttribute('href');
     const store = destinations.get(url);
-    if (!store || web.dataset.appEnhanced === '1') return;
-    const route = store.route + encodeURIComponent(url);
-    const appUrl = android
-      ? 'intent://' + route + '#Intent;scheme=' + store.scheme + ';package=' + store.package + ';S.browser_fallback_url=' + encodeURIComponent(url) + ';end'
-      : store.scheme + '://' + route;
+    if (!store || (store.androidOnly && !android) || web.dataset.appEnhanced === '1') return;
+    // Kyobo's official button uses its verified HTTPS App Link dispatcher.
+    // A raw kyobobook-scheme intent did not launch on the reported Android
+    // device and silently fell back to Chrome. Do not reconstruct that intent.
+    let appUrl;
+    if (store.id === 'kyobo') {
+      const nativeRoute = 'kyobobook://webview?url=' + encodeURIComponent(url);
+      appUrl = 'https://apps.kyobobook.co.kr/api/v1/click/53ZVm7lpXE2DBPo45wUhTw/ZVGe11UKI0iOYYg0gDMeWw?deeplink_custom_path=' + encodeURIComponent(nativeRoute);
+    } else {
+      // RIDI's Android sharing code constructs ContentsHome/<bookId>/share.
+      // Only enable it on the platform whose native route was verified.
+      const route = store.id === 'ridi' ? store.route : store.route + encodeURIComponent(url);
+      appUrl = android
+        ? 'intent://' + route + '#Intent;scheme=' + store.scheme + ';package=' + store.package + ';S.browser_fallback_url=' + encodeURIComponent(url) + ';end'
+        : store.scheme + '://' + route;
+    }
     const option = document.createElement('div');
     option.className = 'store-app-option';
     const app = document.createElement('a');
     app.className = 'store-app-action';
     app.href = appUrl;
-    app.textContent = '앱으로 열기';
+    app.textContent = store.id === 'kyobo' ? '쇼핑 앱으로 열기' : '앱으로 열기';
     app.setAttribute('aria-label', store.name + ' 앱으로 매듭 1 ' + store.format + ' 열기');
     app.setAttribute('aria-describedby', 'store-app-help');
     app.rel = 'noopener noreferrer';
@@ -53,7 +65,7 @@
     const note = document.createElement('p');
     note.id = 'store-app-help';
     note.className = 'store-app-help';
-    note.textContent = '앱이 열리지 않으면 ‘웹에서 구매’를 눌러 주세요.';
+    note.textContent = '교보문고는 쇼핑 앱으로 연결됩니다. 앱이 열리지 않으면 ‘웹에서 구매’를 눌러 주세요.';
     const purchase = document.querySelector('#read .buy-panel, #stores');
     // On the original homepage the first purchase grid sits inside #read.
     (purchase || enhanced[0].parentElement).append(note);
