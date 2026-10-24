@@ -18,12 +18,12 @@ test('home retains the original design and puts reviews and purchases before wor
   assert.match(page,/S000220619545/);assert.match(page,/193866498/);assert.match(page,/398378496/);
   assert.match(page,/전자책 2·3권 목록/);
 });
-test('all ten genuine reviews survive once with the four gifted disclosures and the seven screenshots',()=>{
+test('all ten genuine reviews survive once with the four gifted disclosures and the eight screenshots',()=>{
   const ids=[...page.matchAll(/data-review-id="([^"]+)"/g)].map(x=>x[1]);
   assert.equal(ids.length,10);assert.equal(new Set(ids).size,10);
   assert.ok(!/<details\b|<summary\b|role="tablist"/.test(page));
   assert.equal([...page.matchAll(/rr-badge rr-gift/g)].length,4);
-  assert.equal([...page.matchAll(/class="rr-capture /g)].length,7);
+  assert.equal([...page.matchAll(/class="rr-capture /g)].length,8);
 });
 test('original scenes, characters and survivor functions remain accessible without disclosure controls',()=>{
   for(const id of ['sceneRail','scenePager','characterRail','characterPager','recentList','resultChip','bridgeTitle','bridgeMeta'])assert.equal([...page.matchAll(new RegExp('id="'+id+'"','g'))].length,1);

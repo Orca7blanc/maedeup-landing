@@ -29,6 +29,7 @@ const REVIEW_STYLE = String.raw`
 .rr-evidence{margin:22px 0 0}.rr-evidence figcaption{color:#9d978b;font-size:11px;line-height:1.7;margin-top:8px}
 .rr-capture{display:block;border-radius:7px;overflow:hidden;background:#fff;border:7px solid #f5f3ef}
 .rr-capture img{display:block;width:100%;height:auto;background:#fff}
+.rr-capture svg{display:block;width:100%;height:auto;background:#fff}
 .rr-lead .rr-capture{max-width:920px}
 .rr-details{border-top:1px solid rgba(195,155,93,.17);margin-top:18px;padding-top:6px}
 .rr-details summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:10px 0;color:#c9b890;font-size:12px;list-style:none;min-height:40px}
@@ -60,13 +61,13 @@ const KYOBO = 'https://ebook-product.kyobobook.co.kr/dig/epd/ebook/';
 // Masked IDs on separate platforms are not asserted to be distinct people.
 const REVIEWS = [
   {id:'kyobo-mi',author:'mi (마스킹 ID)',platform:'교보문고',volume:1,badge:'구매자 후기',date:'2026.07.28',quote:'첫 장부터 빨려들어갑니다.',url:KYOBO+'E000013298635',image:'kyobo-mi-book1-20260922.webp',width:816,height:127},
-  {id:'ridi-tot',author:'tot***',platform:'리디',volume:3,badge:'구매자 후기',date:'2026.07.25',quote:'작가는 디테일과 장난질에 미쳐 있습니다.',context:'한 번 읽는 것보다 두 번째, 세 번째 읽을 때 더 많은 게 보입니다.',url:'https://ridibooks.com/books/5273014883',image:'ridi-book3-excerpt-20260922.webp',width:889,height:72},
+  {id:'ridi-tot',author:'tot***',platform:'리디',volume:3,badge:'구매자 후기',date:'2026.07.25',topic:'다시 읽을 때 보이는 이야기',quote:'한 번 읽는 것보다 두 번째, 세 번째 읽을 때 더 많은 게 보입니다.',context:'작가는 디테일과 장난질에 미쳐 있습니다.',url:'https://ridibooks.com/books/5273014883',image:'ridi-book3-excerpt-20260922.webp',width:889,height:72},
   {id:'kyobo-ls',author:'ls (마스킹 ID)',platform:'교보문고',volume:2,badge:'독자 후기',date:'2026.07.17',topic:'다음 권을 펼치게 하는 힘',quote:'뒷내용 궁금해서 참을 수 없음!! 1권읽고 바로 2권 읽었음!!',url:KYOBO+'E000013298720',image:'kyobo-ls-book2-20260922.webp',width:814,height:107},
   {id:'kyobo-yo',author:'yo (마스킹 ID)',platform:'교보문고',volume:2,badge:'구매자 후기',date:'2026.08.13',topic:'시간을 잊게 하는 몰입감',quote:'몰입감있는 글에 시간가는줄 모르고 내리 읽었네요',url:KYOBO+'E000013298720',image:'kyobo-yo-book2-20260928.webp',width:814,height:145},
   {id:'yes24-tj',author:'t…j (마스킹 ID)',platform:'YES24',volume:2,badge:'구매자 후기',date:'2026.09.15',topic:'손에 땀이 나는 긴장감',quote:'손에 땀이 나서 책장에 손자국도 났다.',context:'특히 마지막 놀이는 정말 숨을 참아가며 봤다.',url:'https://sarak.yes24.com/review/22410667',image:'yes24-book2-excerpt-20260922.webp',width:884,height:105},
-  {id:'kyobo-tj',author:'tj (마스킹 ID)',platform:'교보문고',volume:2,badge:'구매자 후기',date:'2026.07.17',topic:'한국형 오컬트의 맛',quote:'오래간만에 맛보는 한국형 오컬트 별미입니다.',url:KYOBO+'E000013298720',image:'kyobo-tj-book2-20260922.webp',width:814,height:109},
-  {id:'haeya',author:'해야',platform:'네이버 블로그',volume:'2·3',badge:'도서 제공 서평',date:'2026.09.28',topic:'세 권을 끝까지 읽은 뒤',quote:'긴 여정의 매듭을 맺다',quoteLabel:'서평 제목에서 발췌',description:'해야님의 2·3권 통합 서평입니다. 원문에서 시리즈를 마친 감상을 읽어보세요.',url:'https://blog.naver.com/haeya_s2/224424424529'},
-  {id:'nanan',author:'나난',platform:'네이버 블로그',volume:1,badge:'도서 제공 서평',topic:'망설임을 넘어선 재미',quote:'하지만 이 모든 걱정과 고민과 불안에도 불구하고 이야기는 확실히 재미를 안겨준다.',description:'낯선 작가, 세 권의 긴 이야기. 읽기 전의 망설임을 털어놓은 서평은, 그럼에도 이야기가 주는 재미를 이야기합니다.',url:'https://blog.naver.com/noon472/224418554577',image:'nanan-book1-excerpt-20260922.webp',width:734,height:163},
+  {id:'kyobo-tj',author:'tj (마스킹 ID)',platform:'교보문고',volume:2,badge:'구매자 후기',date:'2026.07.17',topic:'한국형 오컬트의 맛',quote:'오래간만에 맛보는 한국형 오컬트 별미입니다',url:KYOBO+'E000013298720',image:'kyobo-tj-book2-20260922.webp',width:814,height:109},
+  {id:'kkamangsae',author:'까망새',platform:'책과콩나무',volume:1,badge:'도서 제공 서평',topic:'첫 권을 읽고 남긴 추천',quote:'매듭은 올해 읽은 책 중에 단연코 가장 재미있었다고 장담한다.',url:EVIDENCE_ROOT+'kkamangsae-book1-source-20261024.jpg',sourceLabel:'원문 캡처 보기',image:'kkamangsae-book1-source-20261024.jpg',width:1080,height:2187,viewBox:'35 1518 1010 130'},
+  {id:'nanan',author:'나난',platform:'책과콩나무',volume:3,badge:'도서 제공 서평',date:'2026.09.24',topic:'부적으로 펼쳐지는 전투',quote:'이토록 부적을 잘 사용한 이야기가 있을까 싶다.',url:EVIDENCE_ROOT+'nanan-book3-source-20261024.jpg',sourceLabel:'원문 캡처 보기',image:'nanan-book3-source-20261024.jpg',width:1080,height:2187,viewBox:'35 148 1010 275'},
   {id:'egg',author:'달걀댁',platform:'알라딘 서재',volume:1,badge:'도서 제공 서평',topic:'취향을 건드리는 퇴마와 전투',quote:'무엇보다도 내 취향에 딱 맞는 작품이었다.',description:'부적마다 다른 기능과 역동적인 전투 장면을 인상적으로 읽었다는 감상입니다.',url:'https://blog.aladin.co.kr/monkeyking/17476771'},
   {id:'soso',author:'소소 (kindlyhj)',platform:'네이버 블로그',volume:2,badge:'도서 제공 서평',topic:'두 번째 권에서 넓어지는 세계',summary:'1권을 다시 훑고 읽은 2권에서 넓어지는 세계와 빠른 전개를 인상적으로 받아들인 감상.',url:'https://blog.naver.com/kindlyhj/224415759199'}
 ];
@@ -75,16 +76,19 @@ function escapeHtml(value){
   return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 function sourceLink(r){
-  return '<a class="rr-source" href="'+escapeHtml(r.url)+'" target="_blank" rel="noopener noreferrer" data-track="review_source_'+r.id+'">'+escapeHtml(r.platform)+'에서 원문 보기 <span aria-hidden="true">↗</span></a>';
+  return '<a class="rr-source" href="'+escapeHtml(r.url)+'" target="_blank" rel="noopener noreferrer" data-track="review_source_'+r.id+'">'+escapeHtml(r.sourceLabel||r.platform+'에서 원문 보기')+' <span aria-hidden="true">↗</span></a>';
 }
 function metadata(r){
   return '<div class="rr-meta"><span class="rr-badge'+(r.badge==='도서 제공 서평'?' rr-gift':'')+'">'+r.badge+'</span><cite>'+escapeHtml(r.platform)+' · '+escapeHtml(r.author)+' · '+r.volume+'권'+(r.date?' · '+r.date:'')+'</cite></div>';
 }
-function capture(file,width,height,alt,extra=''){
-  return '<a class="rr-capture '+extra+'" href="'+EVIDENCE_ROOT+file+'" target="_blank" rel="noopener noreferrer" aria-label="'+escapeHtml(alt)+' 확대 보기"><img src="'+EVIDENCE_ROOT+file+'" width="'+width+'" height="'+height+'" alt="'+escapeHtml(alt)+'" loading="lazy" decoding="async"></a>';
+function capture(file,width,height,alt,extra='',viewBox){
+  const media=viewBox?
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+viewBox+'" role="img" aria-label="'+escapeHtml(alt)+'"><image href="'+EVIDENCE_ROOT+file+'" width="'+width+'" height="'+height+'"/></svg>':
+    '<img src="'+EVIDENCE_ROOT+file+'" width="'+width+'" height="'+height+'" alt="'+escapeHtml(alt)+'" loading="lazy" decoding="async">';
+  return '<a class="rr-capture '+extra+'" href="'+EVIDENCE_ROOT+file+'" target="_blank" rel="noopener noreferrer" aria-label="'+escapeHtml(alt)+' 확대 보기">'+media+'</a>';
 }
 function evidence(r,caption='실제 후기 캡처 · 누르면 확대해서 볼 수 있습니다.'){
-  return '<figure class="rr-evidence">'+capture(r.image,r.width,r.height,r.platform+' '+r.author+' '+r.volume+'권 후기 발췌')+'<figcaption>'+caption+'</figcaption></figure>';
+  return '<figure class="rr-evidence">'+capture(r.image,r.width,r.height,r.platform+' '+r.author+' '+r.volume+'권 후기 발췌','',r.viewBox)+'<figcaption>'+(r.viewBox?'원문 일부 · 누르면 전체 캡처':caption)+'</figcaption></figure>';
 }
 function details(r){
   if(!r.image) return sourceLink(r);
@@ -118,12 +122,12 @@ const REVIEW_SECTION='<section class="section reader-reviews" id="reader-reviews
 
 export function renderSalesReviews(){
   const byId=new Map(REVIEWS.map(review=>[review.id,review]));
-  const leadIds=['kyobo-mi','nanan','yes24-tj'];
-  const moreIds=['haeya','kyobo-tj','egg','kyobo-ls','soso','kyobo-yo','ridi-tot'];
+  const leadIds=['nanan','yes24-tj','kkamangsae'];
+  const moreIds=['kyobo-ls','ridi-tot','kyobo-mi','kyobo-tj','egg','soso','kyobo-yo'];
   function salesCard(id){
     const r=byId.get(id);
     const topic=r.topic||(id==='kyobo-mi'?'첫 장의 흡입력':'다시 읽으며 발견하는 이야기');
-    const description=id==='nanan'?'읽기 전의 망설임과 읽은 뒤의 재미를 담은 1권 서평입니다.':r.description;
+    const description=r.description;
     const body=r.summary?
       '<p class="rr-caption">서평 내용 요약 · 직접 인용문이 아닙니다.</p><p class="rr-context">'+escapeHtml(r.summary)+'</p>':
       '<blockquote>“'+escapeHtml(r.quote)+'”</blockquote>'+
@@ -142,7 +146,7 @@ export function renderSalesReviews(){
 export function renderUnfoldedReaderReviews(){
   const style=REVIEW_STYLE.replace(/font-size:(\d+(?:\.\d+)?)px/g,(declaration,size)=>Number(size)<14?'font-size:14px':declaration);
   const byId=new Map(REVIEWS.map(review=>[review.id,review]));
-  const order=['kyobo-mi','nanan','yes24-tj','haeya','kyobo-tj','egg','kyobo-ls','soso','kyobo-yo','ridi-tot'];
+  const order=['nanan','yes24-tj','kkamangsae','kyobo-ls','ridi-tot','kyobo-mi','kyobo-tj','egg','soso','kyobo-yo'];
   const cards=order.map(id=>{
     const r=byId.get(id);
     const topic=r.topic?'<span>'+escapeHtml(r.topic)+'</span>':'';
