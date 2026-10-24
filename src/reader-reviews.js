@@ -66,8 +66,8 @@ const REVIEWS = [
   {id:'kyobo-yo',author:'yo (마스킹 ID)',platform:'교보문고',volume:2,badge:'구매자 후기',date:'2026.08.13',topic:'시간을 잊게 하는 몰입감',quote:'몰입감있는 글에 시간가는줄 모르고 내리 읽었네요',url:KYOBO+'E000013298720',image:'kyobo-yo-book2-20260928.webp',width:814,height:145},
   {id:'yes24-tj',author:'t…j (마스킹 ID)',platform:'YES24',volume:2,badge:'구매자 후기',date:'2026.09.15',topic:'손에 땀이 나는 긴장감',quote:'손에 땀이 나서 책장에 손자국도 났다.',context:'특히 마지막 놀이는 정말 숨을 참아가며 봤다.',url:'https://sarak.yes24.com/review/22410667',image:'yes24-book2-excerpt-20260922.webp',width:884,height:105},
   {id:'kyobo-tj',author:'tj (마스킹 ID)',platform:'교보문고',volume:2,badge:'구매자 후기',date:'2026.07.17',topic:'한국형 오컬트의 맛',quote:'오래간만에 맛보는 한국형 오컬트 별미입니다',url:KYOBO+'E000013298720',image:'kyobo-tj-book2-20260922.webp',width:814,height:109},
-  {id:'kkamangsae',author:'까망새',platform:'책과콩나무',volume:1,badge:'도서 제공 서평',topic:'첫 권을 읽고 남긴 추천',quote:'매듭은 올해 읽은 책 중에 단연코 가장 재미있었다고 장담한다.',url:EVIDENCE_ROOT+'kkamangsae-book1-source-20261024.jpg',sourceLabel:'원문 캡처 보기',image:'kkamangsae-book1-source-20261024.jpg',width:1080,height:2187,viewBox:'35 1518 1010 130'},
-  {id:'nanan',author:'나난',platform:'책과콩나무',volume:3,badge:'도서 제공 서평',date:'2026.09.24',topic:'부적으로 펼쳐지는 전투',quote:'이토록 부적을 잘 사용한 이야기가 있을까 싶다.',url:EVIDENCE_ROOT+'nanan-book3-source-20261024.jpg',sourceLabel:'원문 캡처 보기',image:'nanan-book3-source-20261024.jpg',width:1080,height:2187,viewBox:'35 148 1010 275'},
+  {id:'kkamangsae',author:'까망새',platform:'책과콩나무',volume:1,badge:'도서 제공 서평',topic:'첫 권을 읽고 남긴 추천',quote:'매듭은 올해 읽은 책 중에 단연코 가장 재미있었다고 장담한다.',url:EVIDENCE_ROOT+'kkamangsae-book1-full.html',sourceLabel:'후기 전체 보기',image:'kkamangsae-book1-source-20261024.jpg',width:1080,height:2187,viewBox:'35 1518 1010 130'},
+  {id:'nanan',author:'나난',platform:'책과콩나무',volume:3,badge:'도서 제공 서평',date:'2026.09.24',topic:'부적으로 펼쳐지는 전투',quote:'이토록 부적을 잘 사용한 이야기가 있을까 싶다.',url:EVIDENCE_ROOT+'nanan-book3-full.html',sourceLabel:'후기 전체 보기',image:'nanan-book3-source-20261024.jpg',width:1080,height:2187,viewBox:'35 148 1010 275'},
   {id:'egg',author:'달걀댁',platform:'알라딘 서재',volume:1,badge:'도서 제공 서평',topic:'취향을 건드리는 퇴마와 전투',quote:'무엇보다도 내 취향에 딱 맞는 작품이었다.',description:'부적마다 다른 기능과 역동적인 전투 장면을 인상적으로 읽었다는 감상입니다.',url:'https://blog.aladin.co.kr/monkeyking/17476771'},
   {id:'soso',author:'소소 (kindlyhj)',platform:'네이버 블로그',volume:2,badge:'도서 제공 서평',topic:'두 번째 권에서 넓어지는 세계',summary:'1권을 다시 훑고 읽은 2권에서 넓어지는 세계와 빠른 전개를 인상적으로 받아들인 감상.',url:'https://blog.naver.com/kindlyhj/224415759199'}
 ];
@@ -81,14 +81,14 @@ function sourceLink(r){
 function metadata(r){
   return '<div class="rr-meta"><span class="rr-badge'+(r.badge==='도서 제공 서평'?' rr-gift':'')+'">'+r.badge+'</span><cite>'+escapeHtml(r.platform)+' · '+escapeHtml(r.author)+' · '+r.volume+'권'+(r.date?' · '+r.date:'')+'</cite></div>';
 }
-function capture(file,width,height,alt,extra='',viewBox){
+function capture(file,width,height,alt,extra='',viewBox,destination){
   const media=viewBox?
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+viewBox+'" role="img" aria-label="'+escapeHtml(alt)+'"><image href="'+EVIDENCE_ROOT+file+'" width="'+width+'" height="'+height+'"/></svg>':
     '<img src="'+EVIDENCE_ROOT+file+'" width="'+width+'" height="'+height+'" alt="'+escapeHtml(alt)+'" loading="lazy" decoding="async">';
-  return '<a class="rr-capture '+extra+'" href="'+EVIDENCE_ROOT+file+'" target="_blank" rel="noopener noreferrer" aria-label="'+escapeHtml(alt)+' 확대 보기">'+media+'</a>';
+  return '<a class="rr-capture '+extra+'" href="'+escapeHtml(destination||EVIDENCE_ROOT+file)+'" target="_blank" rel="noopener noreferrer" aria-label="'+escapeHtml(alt)+(destination?' 전체 보기':' 확대 보기')+'">'+media+'</a>';
 }
 function evidence(r,caption='실제 후기 캡처 · 누르면 확대해서 볼 수 있습니다.'){
-  return '<figure class="rr-evidence">'+capture(r.image,r.width,r.height,r.platform+' '+r.author+' '+r.volume+'권 후기 발췌','',r.viewBox)+'<figcaption>'+(r.viewBox?'원문 일부 · 누르면 전체 캡처':caption)+'</figcaption></figure>';
+  return '<figure class="rr-evidence">'+capture(r.image,r.width,r.height,r.platform+' '+r.author+' '+r.volume+'권 후기 발췌','',r.viewBox,r.viewBox?r.url:undefined)+'<figcaption>'+(r.viewBox?'원문 일부 · 누르면 후기 전체':caption)+'</figcaption></figure>';
 }
 function details(r){
   if(!r.image) return sourceLink(r);
