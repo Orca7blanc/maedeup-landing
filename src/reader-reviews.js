@@ -122,8 +122,8 @@ const REVIEW_SECTION='<section class="section reader-reviews" id="reader-reviews
 
 export function renderSalesReviews(){
   const byId=new Map(REVIEWS.map(review=>[review.id,review]));
-  const leadIds=['nanan','yes24-tj','kkamangsae'];
-  const moreIds=['kyobo-ls','ridi-tot','kyobo-mi','kyobo-tj','egg','soso','kyobo-yo'];
+  const leadIds=['yes24-tj','kkamangsae','kyobo-ls'];
+  const moreIds=['ridi-tot','kyobo-mi','kyobo-tj','egg','soso','kyobo-yo','nanan'];
   function salesCard(id){
     const r=byId.get(id);
     const topic=r.topic||(id==='kyobo-mi'?'첫 장의 흡입력':'다시 읽으며 발견하는 이야기');
@@ -146,7 +146,7 @@ export function renderSalesReviews(){
 export function renderUnfoldedReaderReviews(){
   const style=REVIEW_STYLE.replace(/font-size:(\d+(?:\.\d+)?)px/g,(declaration,size)=>Number(size)<14?'font-size:14px':declaration);
   const byId=new Map(REVIEWS.map(review=>[review.id,review]));
-  const order=['nanan','yes24-tj','kkamangsae','kyobo-ls','ridi-tot','kyobo-mi','kyobo-tj','egg','soso','kyobo-yo'];
+  const order=['yes24-tj','kkamangsae','kyobo-ls','ridi-tot','kyobo-mi','kyobo-tj','egg','soso','kyobo-yo','nanan'];
   const cards=order.map(id=>{
     const r=byId.get(id);
     const topic=r.topic?'<span>'+escapeHtml(r.topic)+'</span>':'';
